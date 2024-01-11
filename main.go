@@ -15,13 +15,12 @@ func main() {
 		log.Fatal(err)
 	}
 	final := getLinkToArchive(url)
-	fmt.Printf("This is the link to the archive:\n%s", final)
+	fmt.Printf("This is the link to the archive:\n%s\n", final)
 }
 
 func getLinkToArchive(site string) string {
-	fmt.Println("Archiving...")
+	fmt.Printf("Archiving %s...\n", site)
 	url := fmt.Sprintf("https://web.archive.org/save/%s\n", site)
-	fmt.Println(url)
 	archive := parser.ParseSingleLink(url)
 	return archive
 }
