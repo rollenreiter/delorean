@@ -55,7 +55,6 @@ func getUrl(f cmdflags) (string, error) {
 func getFlags() *cmdflags {
 	var f cmdflags
 	flag.BoolVar(&f.silentFlag, "s", false, "Supress all output except for the final link to the archive; useful for scripting")
-	flag.BoolVar(&f.silentFlag, "silent", false, "Supress all output except for the final link to the archive; useful for scripting")
 	flag.StringVar(&f.urlFlag, "u", "", "Declare a URL to archive; useful for scripting and archiving multiple URLs at once")
 	flag.Parse()
 	return &f
