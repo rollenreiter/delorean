@@ -1,22 +1,12 @@
 package main
 
 import (
-	"flag"
 	"fmt"
-	"log"
-	"strings"
-
-	"github.com/rollenreiter/delorean/parser"
 )
 
-type cmdflags struct {
-	silentFlag bool
-	urlFlag    string
-}
-
 func main() {
-	flags := getFlags()
-	urls := getUrl(*flags)
+	flags := GetFlags()
+	urls := GetUrl(*flags)
 
 	final := linksToArchive(*flags, urls)
 
@@ -42,32 +32,7 @@ func linksToArchive(f cmdflags, sites []string) []string {
 		}
 
 		url := fmt.Sprintf("https://web.archive.org/save/%s\n", site)
-		archives[i] = parser.ParseSingleLink(url)
+		archives[i] = ParseSingleLink(url)
 	}
 	return archives
-}
-
-// getting urls and saving them as a string slice of urls
-func getUrl(f cmdflags) []string {
-	u := []string{""}
-	if f.urlFlag == "" {
-		fmt.Println("Enter a link to archive:")
-		_, err := fmt.Scanln(&u[0])
-		if err != nil {
-			log.Fatal(err)
-		}
-	} else {
-		urls := f.urlFlag
-		u = strings.Fields(urls)
-	}
-	return u
-}
-
-// responsible for parsing command line flags
-func getFlags() *cmdflags {
-	var f cmdflags
-	flag.BoolVar(&f.silentFlag, "s", false, "Supress all output except for the final link to the archive; useful for scripting")
-	flag.StringVar(&f.urlFlag, "u", "", "Declare URLs to archive as a single string or a space-seperated sequence of strings; useful for non-interactive use, scripting and archiving multiple URLs at once")
-	flag.Parse()
-	return &f
 }

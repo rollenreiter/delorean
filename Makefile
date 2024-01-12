@@ -1,10 +1,10 @@
 NAME=delorean
 
 build:
-	go build -o delorean main.go
+	go build -o delorean .
 
 run:
-	go build -o delorean main.go
+	go build -o delorean .
 	./delorean
 
 clean:
