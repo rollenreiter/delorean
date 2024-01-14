@@ -25,6 +25,7 @@ func main() {
 func linksToArchive(f cmdflags, sites []string) []string {
 	archives := make([]string, len(sites))
 	for i := range sites {
+		var err error
 		site := sites[i]
 
 		if !f.silentFlag {
@@ -32,7 +33,11 @@ func linksToArchive(f cmdflags, sites []string) []string {
 		}
 
 		url := fmt.Sprintf("https://web.archive.org/save/%s\n", site)
-		archives[i] = ParseSingleLink(url)
+		archives[i], err = ParseSingleLink(url)
+
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 	return archives
 }

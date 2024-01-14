@@ -10,3 +10,6 @@ run:
 clean:
 	go clean
 	rm delorean
+
+install:
+	go install .
