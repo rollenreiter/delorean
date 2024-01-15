@@ -9,7 +9,9 @@ import (
 func GetUrl(f cmdflags) []string {
 	u := []string{""}
 	if f.urlFlag == "" {
-		fmt.Println("Enter a link to archive:")
+		if !f.silentFlag {
+			fmt.Println("Enter a link to archive:")
+		}
 		_, err := fmt.Scanln(&u[0])
 		if err != nil {
 			log.Fatal(err)
