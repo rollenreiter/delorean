@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// deprecated and (probably) slower
 func ParseSingleLink(url string) (string, error) {
 	var err error
 	trimmed := strings.Trim(url, "\n")
@@ -28,6 +29,7 @@ func ParseSingleLink(url string) (string, error) {
 	return finalurl, err
 }
 
+// directly mutates the url passed into it, changed to archive url
 func ParseSingleLinkMutate(url *string) {
 	*url = strings.Trim(*url, "\n")
 	validInput := regexp.MustCompile(`[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,13}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?`)
