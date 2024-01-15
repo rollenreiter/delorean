@@ -8,35 +8,8 @@ import (
 	"strings"
 )
 
-// deprecated and (probably) slower
-func ParseSingleLink(url string) (string, error) {
-	var err error
-	trimmed := strings.Trim(url, "\n")
-	validInput := regexp.MustCompile(`[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,13}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?`)
-	if !validInput.Match([]byte(trimmed)) {
-		err = fmt.Errorf("error: %s is not a real URL", url)
-		log.Fatal(err)
-	}
-	resp, err := http.Get(trimmed)
-	if err != nil {
-		log.Fatal(err)
-	}
-	finalurl := resp.Request.URL.String()
-	validOutput := regexp.MustCompile(`http.:\/\/web\.archive\.org\/web\/[0-9]{14}\/`)
-	if !validOutput.Match([]byte(finalurl)) {
-		err = fmt.Errorf("error: couldn't get archive URL. please try archiving %s in your browser", url)
-	}
-	return finalurl, err
-}
-
-// directly mutates the url passed into it, changed to archive url
-func ParseSingleLinkMutate(url *string) {
+func requestSingleLink(url *string) {
 	*url = strings.Trim(*url, "\n")
-	validInput := regexp.MustCompile(`[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,13}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?`)
-	if !validInput.Match([]byte(*url)) {
-		*url = fmt.Sprintf("\"%s\" is not a valid URL.\n", *url)
-		return
-	}
 	resp, err := http.Get(*url)
 	if err != nil {
 		log.Fatal(err)
@@ -47,5 +20,23 @@ func ParseSingleLinkMutate(url *string) {
 		*url = fmt.Sprintf("The archive URL is not valid. please try archiving \"%s\" in your browser", *url)
 	} else {
 		*url = archive
+	}
+}
+
+func getLinkToArchive(f cmdflags, sites []string) {
+	validInput := regexp.MustCompile(`[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,13}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?`)
+	for i := range sites {
+		if !validInput.Match([]byte(sites[i])) {
+			fmt.Printf("\"%s\" is not a valid URL.\n", sites[i])
+			sites[i] = ""
+			break
+		}
+		site := fmt.Sprintf("https://web.archive.org/save/%s\n", sites[i])
+
+		if !f.silentFlag {
+			fmt.Printf("Archiving %s...\n", sites[i])
+		}
+		requestSingleLink(&site)
+		sites[i] = site
 	}
 }
