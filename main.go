@@ -6,7 +6,12 @@ import (
 
 func main() {
 	flags := GetFlags()
-	urls := GetUrl(*flags)
+	var urls []string
+	if flags.fileFlag == "" {
+		urls = GetUrl(*flags)
+	} else {
+		urls = GetUrlFile(*flags)
+	}
 
 	getLinkToArchive(*flags, urls)
 

@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 )
 
@@ -19,6 +21,22 @@ func GetUrl(f cmdflags) []string {
 	} else {
 		urls := f.urlFlag
 		u = strings.Fields(urls)
+	}
+	return u
+}
+
+func GetUrlFile(f cmdflags) []string {
+	u := []string{""}
+	file, err := os.Open(f.fileFlag)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+	s := bufio.NewScanner(file)
+	s.Split(bufio.ScanWords)
+
+	for s.Scan() {
+		u = append(u, s.Text())
 	}
 	return u
 }
