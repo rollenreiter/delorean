@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"regexp"
 )
 
 func main() {
@@ -45,7 +46,13 @@ func linksToArchive(f cmdflags, sites []string) []string {
 }
 
 func linksToArchiveMutate(f cmdflags, sites []string) {
+	validInput := regexp.MustCompile(`[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,13}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?`)
 	for i := range sites {
+		if !validInput.Match([]byte(sites[i])) {
+			fmt.Printf("\"%s\" is not a valid URL.\n", sites[i])
+			sites[i] = ""
+			break
+		}
 		site := fmt.Sprintf("https://web.archive.org/save/%s\n", sites[i])
 
 		if !f.silentFlag {

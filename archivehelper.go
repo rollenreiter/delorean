@@ -34,15 +34,18 @@ func ParseSingleLinkMutate(url *string) {
 	*url = strings.Trim(*url, "\n")
 	validInput := regexp.MustCompile(`[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,13}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?`)
 	if !validInput.Match([]byte(*url)) {
-		fmt.Printf("\"%s\" is not a valid URL.\n", *url)
+		*url = fmt.Sprintf("\"%s\" is not a valid URL.\n", *url)
+		return
 	}
 	resp, err := http.Get(*url)
 	if err != nil {
 		log.Fatal(err)
 	}
-	*url = resp.Request.URL.String()
+	archive := resp.Request.URL.String()
 	validOutput := regexp.MustCompile(`http.:\/\/web\.archive\.org\/web\/[0-9]{14}\/`)
-	if !validOutput.Match([]byte(*url)) {
-		fmt.Printf("the archive URL is not valid. please try archiving %s in your browser", *url)
+	if !validOutput.Match([]byte(archive)) {
+		*url = fmt.Sprintf("The archive URL is not valid. please try archiving \"%s\" in your browser", *url)
+	} else {
+		*url = archive
 	}
 }
