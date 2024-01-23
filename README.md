@@ -2,18 +2,17 @@
 A simple and fast CLI for archiving webpages on the [Wayback Machine](https://web.archive.org) written in *Go*
 
 # Installation
-## AUR package:
-```bash
-$ yay -S delorean
-```
 
 ## Building from source:
-**Delorean** only uses the Go standard library and does not require any dependencies to run or compile.
+**Delorean** only uses the Go standard library and does not require any external dependencies to run or compile.
 ```bash
 $ git clone --depth=1 https://github.com/rollenreiter/delorean
 $ cd delorean
 $ go build .
 ```
+
+## AUR package:
+coming soon...
 
 # Usage
 Executing the binary results in an interactive interface that can be used to quickly archive a single URL:
