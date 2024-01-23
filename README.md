@@ -20,12 +20,20 @@ Executing the binary results in an interactive interface that can be used to qui
 delorean
 ```
 
-Use the `-u` flag to archive a whitespace-separated list of URLs:
+Use the `-u` flag to archive a whitespace-separated list of URLs.
+Example:
 ```bash
 delorean -u "https://example.foo http://example1.foo example2.foo"
 ```
 
-Use the `-s` flag to suppress all output except for the links to the archives and error messages:
+Use the `-s` flag to suppress all output except for the links to the archives and error messages.
+Example:
 ```bash
 delorean -u "https://example.foo https://example1.foo" -s >> citation.txt
+```
+
+Use the `-f` flag to suppress all output except for the links to the archives and error messages.
+Example:
+```bash
+delorean -f "old-citation.txt" -s >> "new-citation.txt"
 ```
