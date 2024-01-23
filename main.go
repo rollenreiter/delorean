@@ -9,11 +9,11 @@ func main() {
 	var urls []string
 	if flags.fileFlag == "" {
 		urls = GetUrl(*flags)
+		getLinkToArchive(*flags, urls)
 	} else {
 		urls = GetUrlFile(*flags)
+		getLinkToArchiveFile(*flags, urls)
 	}
-
-	getLinkToArchive(*flags, urls)
 
 	if flags.silentFlag {
 		for i := range urls {

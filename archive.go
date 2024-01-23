@@ -14,10 +14,11 @@ func requestSingleLink(url *string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer resp.Body.Close()
 	archive := resp.Request.URL.String()
 	validOutput := regexp.MustCompile(`http.:\/\/web\.archive\.org\/web\/[0-9]{14}\/`)
 	if !validOutput.Match([]byte(archive)) {
-		*url = fmt.Sprintf("The archive URL is not valid. please try archiving \"%s\" in your browser", *url)
+		*url = fmt.Sprintf("The archive URL is not valid. Please try archiving \"%s\" in your browser", *url)
 	} else {
 		*url = archive
 	}
@@ -32,6 +33,21 @@ func getLinkToArchive(f cmdflags, sites []string) {
 			}
 			sites[i] = fmt.Sprintf("UNARCHIVED: %s", sites[i])
 		} else {
+			site := fmt.Sprintf("https://web.archive.org/save/%s\n", sites[i])
+
+			if !f.silentFlag {
+				fmt.Printf("Archiving %s...\n", sites[i])
+			}
+			requestSingleLink(&site)
+			sites[i] = site
+		}
+	}
+}
+
+func getLinkToArchiveFile(f cmdflags, sites []string) {
+	validInput := regexp.MustCompile(`[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,13}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?`)
+	for i := range sites {
+		if validInput.Match([]byte(sites[i])) {
 			site := fmt.Sprintf("https://web.archive.org/save/%s\n", sites[i])
 
 			if !f.silentFlag {
