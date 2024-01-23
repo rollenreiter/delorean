@@ -1,5 +1,5 @@
 # Delorean
-A simple and fast CLI for archiving webpages on the [Wayback Machine](https://web.archive.org) written in *Go*
+A simple ~~and blazingly fast~~ CLI for archiving webpages on the [Wayback Machine](https://web.archive.org) written in *Go*
 
 # Installation
 
@@ -15,25 +15,28 @@ $ go build .
 coming soon...
 
 # Usage
-Executing the binary results in an interactive interface that can be used to quickly archive a single URL:
+Executing the binary without flags opens an interactive interface that can be used to quickly archive a single URL.
 ```bash
+# Run Delorean in interactive mode
 delorean
 ```
 
 Use the `-u` flag to archive a whitespace-separated list of URLs.
-Example:
 ```bash
+# Archive example.foo, example1.foo and example2.foo
 delorean -u "https://example.foo http://example1.foo example2.foo"
 ```
 
 Use the `-s` flag to suppress all output except for the links to the archives and error messages.
-Example:
 ```bash
+# Archive example.foo, example1.foo and example2.foo
+# and redirect all output to citation.txt
 delorean -u "https://example.foo https://example1.foo" -s >> citation.txt
 ```
 
-Use the `-f` flag to suppress all output except for the links to the archives and error messages.
-Example:
+Use the `-f` flag to pass a file. Delorean will parse all URLs and archive them.
 ```bash
-delorean -f "old-citation.txt" -s >> "new-citation.txt"
+# Archive all links from old-citation.txt and redirect
+# the output to new-citation.txt
+delorean -f old-citation.txt -s >> new-citation.txt
 ```
