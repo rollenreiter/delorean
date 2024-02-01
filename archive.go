@@ -26,8 +26,8 @@ func requestSingleLink(url *string) {
 
 func getLinkToArchive(f cmdflags, sites []string) {
 	preprocess := func(s *string) {
-		if !strings.Contains(*s, "http://") || !strings.Contains(*s, "http://") {
-			*s = fmt.Sprintf("http://%s",*s)
+		if !strings.Contains(*s, "https://") || !strings.Contains(*s, "http://") {
+			*s = fmt.Sprintf("http://%s", *s)
 		}
 	}
 	for i := range sites {
