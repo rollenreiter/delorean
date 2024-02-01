@@ -18,18 +18,25 @@ func requestSingleLink(url *string) {
 	archive := resp.Request.URL.String()
 	validOutput := regexp.MustCompile(`http.:\/\/web\.archive\.org\/web\/[0-9]{14}\/`)
 	if !validOutput.Match([]byte(archive)) {
-		*url = fmt.Sprintf("The archive URL is not valid. Please try archiving \"%s\" in your browser", *url)
+		*url = fmt.Sprintf("The archive URL is not valid. Please try this link:\n%s\n in your browser", *url)
 	} else {
 		*url = archive
 	}
 }
 
 func getLinkToArchive(f cmdflags, sites []string) {
-	validInput := regexp.MustCompile(`[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,13}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?`)
+	preprocess := func(s *string) {
+		if !strings.Contains(*s, "http://") || !strings.Contains(*s, "http://") {
+			*s = fmt.Sprintf("http://%s",*s)
+		}
+	}
 	for i := range sites {
-		if !validInput.Match([]byte(sites[i])) {
+		preprocess(&sites[i])
+		fmt.Printf("Checking validity of %s...\n", sites[i])
+		_, err := http.Get((sites[i]))
+		if err != nil {
 			if !f.silentFlag {
-				fmt.Printf("\"%s\" is not a valid URL.\n", sites[i])
+				fmt.Printf("\"%s\" is not a valid URL, skipping.\n", sites[i])
 			}
 			sites[i] = fmt.Sprintf("UNARCHIVED: %s", sites[i])
 		} else {
