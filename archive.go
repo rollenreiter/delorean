@@ -32,11 +32,12 @@ func getLinkToArchive(f cmdflags, sites []string) {
 	}
 	for i := range sites {
 		preprocess(&sites[i])
+
 		fmt.Printf("Checking validity of %s...\n", sites[i])
 		_, err := http.Get((sites[i]))
 		if err != nil {
 			if !f.silentFlag {
-				fmt.Printf("\"%s\" is not a valid URL, skipping.\n", sites[i])
+				fmt.Printf("Could not resolve host of %s, skipping.\n", sites[i])
 			}
 			sites[i] = fmt.Sprintf("UNARCHIVED: %s", sites[i])
 		} else {
@@ -52,15 +53,25 @@ func getLinkToArchive(f cmdflags, sites []string) {
 }
 
 func getLinkToArchiveFile(f cmdflags, sites []string) {
-	validInput := regexp.MustCompile(`[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,13}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?`)
+	preprocess := func(s *string) {
+		if !strings.Contains(*s, "https://") || !strings.Contains(*s, "http://") {
+			*s = fmt.Sprintf("http://%s", *s)
+		}
+	}
 	for i := range sites {
-		if validInput.Match([]byte(sites[i])) {
+		preprocess(&sites[i])
+
+		_, err := http.Get((sites[i]))
+		if err != nil {
+			i++
+		} else {
 			site := fmt.Sprintf("https://web.archive.org/save/%s\n", sites[i])
 
 			if !f.silentFlag {
 				fmt.Printf("Archiving %s...\n", sites[i])
 			}
-			requestSingleLink(&site)
+			fmt.Println(&site)
+			// requestSingleLink(&site)
 			sites[i] = site
 		}
 	}
