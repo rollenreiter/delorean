@@ -21,8 +21,8 @@ func (in *urls) GetTokens(f *cmdflags) {
 		s := bufio.NewScanner(file)
 		s.Split(bufio.ScanWords)
 
-		for i := 0; s.Scan(); i++ {
-			in.tokens[i] = s.Text()
+		for s.Scan() {
+			in.tokens = append(in.tokens, s.Text())
 		}
 	}
 
@@ -36,6 +36,7 @@ func (in *urls) GetTokens(f *cmdflags) {
 	if f.urlFlag == "" && f.fileFlag == "" {
 		in.source = "stdin"
 		fmt.Println("Enter a URL to archive:")
+		in.tokens = append(in.tokens, "")
 		_, err := fmt.Scanln(&in.tokens[0])
 		if err != nil {
 			log.Fatal(err)
@@ -53,6 +54,7 @@ func (in *urls) GetUrls(f *cmdflags) {
 
 	case f.fileFlag:
 		{
+			fmt.Println("Validating URLs...")
 			for i := range in.tokens {
 				preprocess(&in.tokens[i])
 
@@ -67,6 +69,7 @@ func (in *urls) GetUrls(f *cmdflags) {
 
 	case "urlFlag":
 		{
+			fmt.Println("Validating URLs...")
 			for i := range in.tokens {
 				preprocess(&in.tokens[i])
 
@@ -83,6 +86,7 @@ func (in *urls) GetUrls(f *cmdflags) {
 
 	case "stdin":
 		{
+			fmt.Println("Validating URL...")
 			preprocess(&in.tokens[0])
 			_, err := http.Get((in.tokens[0]))
 			if err != nil {

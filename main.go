@@ -12,18 +12,11 @@ type urls struct {
 }
 
 func main() {
-	input := urls{
-		source:  "",
-		tokens:  []string{""},
-		urls:    []string{""},
-		results: []string{""},
-	}
+	input := NewInput()
 	flags := GetFlags()
 	input.GetTokens(flags)
-	fmt.Println(input)
 	input.GetUrls(flags)
-	fmt.Println(input)
-	// input.Archive(flags)
+	input.Archive(flags)
 
 	if flags.silentFlag {
 		for i := range input.results {
@@ -32,7 +25,17 @@ func main() {
 	} else {
 		fmt.Printf("These are the links to the archives:\n")
 		for i := range input.results {
-			fmt.Printf("%s\n", input.results[i])
+			fmt.Println(input.results[i])
 		}
 	}
+}
+
+func NewInput() urls {
+	i := urls{
+		source:  "",
+		tokens:  make([]string, 0),
+		urls:    make([]string, 0),
+		results: make([]string, 0),
+	}
+	return i
 }
