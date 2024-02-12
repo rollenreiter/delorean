@@ -22,7 +22,7 @@ func TestTokenize(t *testing.T) {
 func TestTokenizeFile(t *testing.T) {
 	flags := cmdflags{
 		urlFlag:  "",
-		fileFlag: "sources.txt",
+		fileFlag: "testfile",
 	}
 	input := NewInput()
 	input.GetTokens(&flags)
@@ -61,7 +61,7 @@ func TestGetUrls(t *testing.T) {
 func TestGetUrlsFile(t *testing.T) {
 	flags := cmdflags{
 		urlFlag:  "",
-		fileFlag: "sources.txt",
+		fileFlag: "testfile",
 	}
 	input := NewInput()
 	input.GetTokens(&flags)
