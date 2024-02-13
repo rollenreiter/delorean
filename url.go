@@ -9,60 +9,64 @@ import (
 	"strings"
 )
 
-func (in *urls) GetTokens(f *cmdflags) {
+// GetTokens determines the URL source by reading f, then sets u.source accordingly and appends
+// every token inside of the source to u.tokens.
+func (u *urls) GetTokens(f *cmdflags) {
 	// behaviour when reading from a file
 	if f.fileFlag != "" {
-		in.source = f.fileFlag
-		file, err := os.Open(in.source)
+		u.source = f.fileFlag
+		file, err := os.Open(u.source)
 		if err != nil {
-			fmt.Printf("Failed reading from %s\n", in.source)
+			fmt.Printf("Failed reading from %s\n", u.source)
 		}
 		defer file.Close()
 		s := bufio.NewScanner(file)
 		s.Split(bufio.ScanWords)
 
 		for s.Scan() {
-			in.tokens = append(in.tokens, s.Text())
+			u.tokens = append(u.tokens, s.Text())
 		}
 	}
 
 	// behaviour when reading from urlFlag
 	if f.urlFlag != "" {
-		in.source = "urlFlag"
-		in.tokens = strings.Fields(f.urlFlag)
+		u.source = "urlFlag"
+		u.tokens = strings.Fields(f.urlFlag)
 	}
 
 	// behaviour when reading from stdin
 	if f.urlFlag == "" && f.fileFlag == "" {
-		in.source = "stdin"
+		u.source = "stdin"
 		fmt.Println("Enter a URL to archive:")
-		in.tokens = append(in.tokens, "")
-		_, err := fmt.Scanln(&in.tokens[0])
+		u.tokens = append(u.tokens, "")
+		_, err := fmt.Scanln(&u.tokens[0])
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 }
 
-func (in *urls) GetUrls(f *cmdflags) {
+// GetUrls prepends "http://" to every non-URL string in u.tokens and sends a http GET
+// request to each to determine if it is valid.
+// Once validity is verified, the URL is added to u.validUrls. Invalid URLs are discarded.
+func (u *urls) GetUrls(f *cmdflags) {
 	preprocess := func(s *string) {
 		if !strings.Contains(*s, "https://") || !strings.Contains(*s, "http://") {
 			*s = fmt.Sprintf("http://%s", *s)
 		}
 	}
-	switch in.source {
 
+	switch u.source {
 	case f.fileFlag:
 		{
 			fmt.Println("Validating URLs...")
-			for i := range in.tokens {
-				preprocess(&in.tokens[i])
-
-				_, err := http.Get((in.tokens[i]))
+			for _, url := range u.tokens {
+				preprocess(&url)
+				_, err := http.Get(url)
 				if err != nil {
-					i++
+					return
 				} else {
-					in.urls = append(in.urls, in.tokens[i])
+					u.validUrls = append(u.validUrls, url)
 				}
 			}
 		}
@@ -70,16 +74,16 @@ func (in *urls) GetUrls(f *cmdflags) {
 	case "urlFlag":
 		{
 			fmt.Println("Validating URLs...")
-			for i := range in.tokens {
-				preprocess(&in.tokens[i])
+			for _, url := range u.tokens {
+				preprocess(&url)
 
-				_, err := http.Get((in.tokens[i]))
+				_, err := http.Get(url)
 				if err != nil {
-					fmt.Printf("Could not resolve \"%s\", skipping\n", in.tokens[i])
-					in.results = append(in.results, fmt.Sprintf("UNARCHIVED: %s", in.tokens[i]))
-					i++
+					fmt.Printf("Could not resolve \"%s\", skipping\n", url)
+					u.results = append(u.results, fmt.Sprintf("UNARCHIVED: %s", url))
+					return
 				} else {
-					in.urls = append(in.urls, in.tokens[i])
+					u.validUrls = append(u.validUrls, url)
 				}
 			}
 		}
@@ -87,12 +91,12 @@ func (in *urls) GetUrls(f *cmdflags) {
 	case "stdin":
 		{
 			fmt.Println("Validating URL...")
-			preprocess(&in.tokens[0])
-			_, err := http.Get((in.tokens[0]))
+			preprocess(&u.tokens[0])
+			_, err := http.Get((u.tokens[0]))
 			if err != nil {
 				log.Fatal(err)
 			} else {
-				in.urls[0] = in.tokens[0]
+				u.validUrls[0] = u.tokens[0]
 			}
 		}
 	}

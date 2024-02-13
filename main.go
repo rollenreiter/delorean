@@ -5,10 +5,10 @@ import (
 )
 
 type urls struct {
-	source  string
-	tokens  []string
-	urls    []string
-	results []string
+	source    string
+	tokens    []string
+	validUrls []string
+	results   []string
 }
 
 func main() {
@@ -32,10 +32,10 @@ func main() {
 
 func NewInput() urls {
 	i := urls{
-		source:  "",
-		tokens:  make([]string, 0),
-		urls:    make([]string, 0),
-		results: make([]string, 0),
+		source:    "",
+		tokens:    make([]string, 0),
+		validUrls: make([]string, 0),
+		results:   make([]string, 0),
 	}
 	return i
 }

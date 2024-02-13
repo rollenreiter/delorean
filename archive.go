@@ -7,10 +7,16 @@ import (
 	"regexp"
 )
 
-func (in *urls) Archive(f *cmdflags) {
-	for i := range in.urls {
-		fmt.Printf("Archiving %s...\n", in.urls[i])
-		resp, err := http.Get(fmt.Sprintf("https://web.archive.org/save/%s", in.urls[i]))
+// Archive archives every URL in u.urls by sending a http GET request to the Internet
+// Archive and waiting for the final redirect, being the archived web page.
+// Should the final redirect's URL not match the usual pattern of an archived web page,
+// Archive will assume an issue on the Internet Archive's end and prompt the user to
+// archive the URL that caused the issue in their browser.
+func (u *urls) Archive(f *cmdflags) {
+	fmt.Println()
+	for i := range u.validUrls {
+		fmt.Printf("Archiving %s...\n", u.validUrls[i])
+		resp, err := http.Get(fmt.Sprintf("https://web.archive.org/save/%s", u.validUrls[i]))
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -20,10 +26,10 @@ func (in *urls) Archive(f *cmdflags) {
 		validOutput := regexp.MustCompile(`http.:\/\/web\.archive\.org\/web\/[0-9]{14}\/`)
 		if !validOutput.Match([]byte(archive)) {
 			fmt.Printf("\"%s\" can't be archived. Please try archiving it in your browser",
-				in.urls[i])
-			in.results = append(in.results, fmt.Sprintf("UNARCHIVED: %s", in.urls[i]))
+				u.validUrls[i])
+			u.results = append(u.results, fmt.Sprintf("UNARCHIVED: %s", u.validUrls[i]))
 		} else {
-			in.results = append(in.results, archive)
+			u.results = append(u.results, archive)
 		}
 	}
 }

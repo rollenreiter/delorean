@@ -49,7 +49,7 @@ func TestGetUrls(t *testing.T) {
 	input := NewInput()
 	input.GetTokens(&flags)
 	input.GetUrls(&flags)
-	got := input.urls
+	got := input.validUrls
 	want := []string{"http://github.com/rollenreiter/delorean", "http://archive.org"}
 	for i := range got {
 		if got[i] != want[i] {
@@ -66,7 +66,7 @@ func TestGetUrlsFile(t *testing.T) {
 	input := NewInput()
 	input.GetTokens(&flags)
 	input.GetUrls(&flags)
-	got := input.urls
+	got := input.validUrls
 	want := []string{
 		"http://github.com/rollenreiter/delorean",
 		"http://archive.org",
