@@ -13,7 +13,7 @@ import (
 // Archive will assume an issue on the Internet Archive's end and prompt the user to
 // archive the URL that caused the issue in their browser.
 func (u *urls) Archive(f *cmdflags) {
-	fmt.Println()
+	fmt.Printf("\nArchiving all URLs. Depending on the Internet Archive's traffic, this may take a long time.\n")
 	for i := range u.validUrls {
 		fmt.Printf("Archiving %s...\n", u.validUrls[i])
 		resp, err := http.Get(fmt.Sprintf("https://web.archive.org/save/%s", u.validUrls[i]))
@@ -35,7 +35,6 @@ func (u *urls) Archive(f *cmdflags) {
 }
 
 func (u *urls) ArchiveSilent(f *cmdflags) {
-	fmt.Println()
 	for i := range u.validUrls {
 		resp, err := http.Get(fmt.Sprintf("https://web.archive.org/save/%s", u.validUrls[i]))
 		if err != nil {

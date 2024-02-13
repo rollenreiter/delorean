@@ -26,7 +26,7 @@ func main() {
 
 	if flags.silentFlag {
 		for i := range input.results {
-			fmt.Printf(input.results[i])
+			fmt.Println(input.results[i])
 		}
 	} else {
 		fmt.Printf("\nSUCCESS! These are the links to the archives:\n")
