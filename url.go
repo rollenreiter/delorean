@@ -51,8 +51,14 @@ func (u *urls) GetTokens(f *cmdflags) {
 // Once validity is verified, the URL is added to u.validUrls. Invalid URLs are discarded.
 func (u *urls) GetUrls(f *cmdflags) {
 	preprocess := func(s *string) {
-		if !strings.Contains(*s, "https://") || !strings.Contains(*s, "http://") {
-			*s = fmt.Sprintf("http://%s", *s)
+		url := *s
+		if len(url) <= 8 {
+			return
+		}
+		if url[:7] == "http://" || url[:8] == "https://" {
+			return
+		} else {
+			*s = fmt.Sprintf("http://%s", url)
 		}
 	}
 
@@ -64,10 +70,9 @@ func (u *urls) GetUrls(f *cmdflags) {
 				preprocess(&url)
 				_, err := http.Get(url)
 				if err != nil {
-					return
-				} else {
-					u.validUrls = append(u.validUrls, url)
+					continue
 				}
+				u.validUrls = append(u.validUrls, url)
 			}
 		}
 
@@ -81,10 +86,9 @@ func (u *urls) GetUrls(f *cmdflags) {
 				if err != nil {
 					fmt.Printf("Could not resolve \"%s\", skipping\n", url)
 					u.results = append(u.results, fmt.Sprintf("UNARCHIVED: %s", url))
-					return
-				} else {
-					u.validUrls = append(u.validUrls, url)
+					continue
 				}
+				u.validUrls = append(u.validUrls, url)
 			}
 		}
 

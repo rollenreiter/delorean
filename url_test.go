@@ -1,17 +1,30 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 )
 
-func TestTokenize(t *testing.T) {
+func TestTokenizeUrl(t *testing.T) {
 	flags := cmdflags{
-		urlFlag: "github.com/rollenreiter/delorean junktext archive.org",
+		silentFlag: false,
+		urlFlag:    "https://github.com/rollenreiter/delorean junktext http://asahina.moe github.com/stompiegit",
+		fileFlag:   "",
 	}
 	input := NewInput()
 	input.GetTokens(&flags)
+
+	fmt.Printf("source is the following: %s\n", input.source)
+
 	got := input.tokens
-	want := []string{"github.com/rollenreiter/delorean", "junktext", "archive.org"}
+	fmt.Printf("got following tokens in input.tokens:\n%s\n", got)
+
+	want := []string{"https://github.com/rollenreiter/delorean", "junktext", "http://asahina.moe", "github.com/stompiegit"}
+	fmt.Printf("want following tokens:\n%s\n", want)
+
+	if len(got) == 0 {
+		t.Errorf("slice %q is empty, wanted %q", got, want)
+	}
 	for i := range got {
 		if got[i] != want[i] {
 			t.Errorf("got %q, wanted %q", got, want)
@@ -21,18 +34,28 @@ func TestTokenize(t *testing.T) {
 
 func TestTokenizeFile(t *testing.T) {
 	flags := cmdflags{
-		urlFlag:  "",
-		fileFlag: "testfile",
+		silentFlag: false,
+		urlFlag:    "",
+		fileFlag:   "testfile",
 	}
 	input := NewInput()
 	input.GetTokens(&flags)
+
+	fmt.Printf("source is the following: %s\n", input.source)
 	got := input.tokens
+	fmt.Printf("got following tokens in input.tokens:\n%s\n", got)
+
 	want := []string{
 		"foo",
 		"bar",
-		"github.com/rollenreiter/delorean",
+		"https://github.com/rollenreiter/delorean",
 		"junktext",
-		"archive.org",
+		"http://asahina.moe",
+		"github.com/stompiegit",
+	}
+
+	if len(got) == 0 {
+		t.Errorf("slice %q is empty, wanted %q", got, want)
 	}
 	for i := range got {
 		if got[i] != want[i] {
@@ -43,14 +66,24 @@ func TestTokenizeFile(t *testing.T) {
 
 func TestGetUrls(t *testing.T) {
 	flags := cmdflags{
-		urlFlag:  "github.com/rollenreiter/delorean junktext archive.org",
-		fileFlag: "",
+		silentFlag: false,
+		urlFlag:    "https://github.com/rollenreiter/delorean junktext http://asahina.moe github.com/stompiegit",
+		fileFlag:   "",
 	}
 	input := NewInput()
 	input.GetTokens(&flags)
 	input.GetUrls(&flags)
 	got := input.validUrls
-	want := []string{"http://github.com/rollenreiter/delorean", "http://archive.org"}
+	fmt.Println(input)
+	want := []string{
+		"https://github.com/rollenreiter/delorean",
+		"http://asahina.moe",
+		"http://github.com/stompiegit",
+	}
+
+	if len(got) == 0 {
+		t.Errorf("slice %q is empty, wanted %q", got, want)
+	}
 	for i := range got {
 		if got[i] != want[i] {
 			t.Errorf("got %q, wanted %q", got, want)
@@ -60,16 +93,24 @@ func TestGetUrls(t *testing.T) {
 
 func TestGetUrlsFile(t *testing.T) {
 	flags := cmdflags{
-		urlFlag:  "",
-		fileFlag: "testfile",
+		silentFlag: false,
+		urlFlag:    "",
+		fileFlag:   "testfile",
 	}
 	input := NewInput()
 	input.GetTokens(&flags)
+	fmt.Println(input.tokens)
 	input.GetUrls(&flags)
 	got := input.validUrls
+	fmt.Println(got)
 	want := []string{
-		"http://github.com/rollenreiter/delorean",
-		"http://archive.org",
+		"https://github.com/rollenreiter/delorean",
+		"http://asahina.moe",
+		"http://github.com/stompiegit",
+	}
+
+	if len(got) == 0 {
+		t.Errorf("slice %q is empty, wanted %q", got, want)
 	}
 	for i := range got {
 		if got[i] != want[i] {
