@@ -25,8 +25,27 @@ func (u *urls) Archive(f *cmdflags) {
 
 		validOutput := regexp.MustCompile(`http.:\/\/web\.archive\.org\/web\/[0-9]{14}\/`)
 		if !validOutput.Match([]byte(archive)) {
-			fmt.Printf("\"%s\" can't be archived. Please try archiving it in your browser",
+			fmt.Printf("\"%s\" couldn't be archived. This may be due to the website being blacklisted from archive.org. For more information, please try archiving it in your browser\n",
 				u.validUrls[i])
+			u.results = append(u.results, fmt.Sprintf("UNARCHIVED: %s", u.validUrls[i]))
+		} else {
+			u.results = append(u.results, archive)
+		}
+	}
+}
+
+func (u *urls) ArchiveSilent(f *cmdflags) {
+	fmt.Println()
+	for i := range u.validUrls {
+		resp, err := http.Get(fmt.Sprintf("https://web.archive.org/save/%s", u.validUrls[i]))
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer resp.Body.Close()
+		archive := resp.Request.URL.String()
+
+		validOutput := regexp.MustCompile(`http.:\/\/web\.archive\.org\/web\/[0-9]{14}\/`)
+		if !validOutput.Match([]byte(archive)) {
 			u.results = append(u.results, fmt.Sprintf("UNARCHIVED: %s", u.validUrls[i]))
 		} else {
 			u.results = append(u.results, archive)
