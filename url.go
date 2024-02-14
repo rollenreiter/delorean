@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 )
 
 // GetTokens determines the URL source by reading f, then sets u.source accordingly and appends
@@ -51,7 +52,82 @@ func (u *urls) GetTokens(f *cmdflags) {
 // GetUrls prepends "http://" to every non-URL string in u.tokens and sends a http GET
 // request to each to determine if it is valid.
 // Once validity is verified, the URL is added to u.validUrls. Invalid URLs are discarded.
-func (u *urls) GetUrls(f *cmdflags) {
+func (u *urls) GetUrls(f *cmdflags, wg *sync.WaitGroup) {
+	preprocess := func(s []string) []string {
+		p := make([]string, len(s))
+		for i, url := range s {
+			if len(url) <= 8 {
+				p[i] = fmt.Sprintf("http://%s", url)
+				continue
+			}
+			if url[:7] == "http://" || url[:8] == "https://" {
+				p[i] = url
+				continue
+			}
+			p[i] = fmt.Sprintf("http://%s", url)
+		}
+		return p
+	}
+
+	switch u.source {
+	case f.fileFlag:
+		{
+			fmt.Println("Validating URLs...")
+			processedUrls := preprocess(u.tokens)
+			for _, url := range processedUrls {
+				wg.Add(1)
+				go func(url string) {
+					_, err := http.Get(url)
+					if err != nil {
+						wg.Done()
+						return
+					} else {
+						u.validUrls = append(u.validUrls, url)
+						wg.Done()
+					}
+				}(url)
+			}
+		}
+
+	case "urlFlag":
+		{
+			fmt.Println("Validating URLs...")
+			processedUrls := preprocess(u.tokens)
+			for _, url := range processedUrls {
+				wg.Add(1)
+				go func(url string) {
+					_, err := http.Get(url)
+					if err != nil {
+						fmt.Printf("Could not resolve \"%s\", skipping\n", url)
+						u.results = append(u.results, fmt.Sprintf("UNARCHIVED: %s", url))
+						wg.Done()
+						return
+					} else {
+						u.validUrls = append(u.validUrls, url)
+						wg.Done()
+					}
+				}(url)
+			}
+		}
+
+	case "stdin":
+		{
+			fmt.Println("Validating URL...")
+			// TODO: write a new function to fix this
+			processed := preprocess(u.tokens)
+			_, err := http.Get(processed[0])
+			if err != nil {
+				log.Fatal(err)
+			} else {
+				u.validUrls = append(u.validUrls, processed[0])
+			}
+			fmt.Println("Done.")
+		}
+	}
+	wg.Wait()
+}
+
+func (u *urls) GetUrlsOld(f *cmdflags) {
 	preprocess := func(s *string) {
 		url := *s
 		if len(url) <= 8 {
@@ -69,6 +145,7 @@ func (u *urls) GetUrls(f *cmdflags) {
 		{
 			fmt.Println("Validating URLs...")
 			for _, url := range u.tokens {
+				fmt.Printf("validating %s\n", url)
 				preprocess(&url)
 				_, err := http.Get(url)
 				if err != nil {

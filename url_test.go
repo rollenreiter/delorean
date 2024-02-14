@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"sync"
 	"testing"
 )
 
+// TODO: Adjust test cases for new async functions
 func TestTokenizeUrl(t *testing.T) {
 	flags := cmdflags{
 		silentFlag: false,
@@ -70,9 +72,10 @@ func TestGetUrls(t *testing.T) {
 		urlFlag:    "https://github.com/rollenreiter/delorean junktext http://asahina.moe github.com/stompiegit",
 		fileFlag:   "",
 	}
+	var wg sync.WaitGroup
 	input := NewInput()
 	input.GetTokens(&flags)
-	input.GetUrls(&flags)
+	input.GetUrls(&flags, &wg)
 	got := input.validUrls
 	fmt.Println(input)
 	want := []string{
@@ -97,10 +100,11 @@ func TestGetUrlsFile(t *testing.T) {
 		urlFlag:    "",
 		fileFlag:   "testfile",
 	}
+	var wg sync.WaitGroup
 	input := NewInput()
 	input.GetTokens(&flags)
 	fmt.Println(input.tokens)
-	input.GetUrls(&flags)
+	input.GetUrls(&flags, &wg)
 	got := input.validUrls
 	fmt.Println(got)
 	want := []string{

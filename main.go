@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sync"
 )
 
 type urls struct {
@@ -15,10 +16,16 @@ func main() {
 	input := NewInput()
 	flags := GetFlags()
 	if !flags.silentFlag {
+		// input.GetTokens(flags)
+		// input.GetUrls(flags)
+		// input.Archive(flags)
+		var wg sync.WaitGroup
 		input.GetTokens(flags)
-		input.GetUrls(flags)
-		input.Archive(flags)
+		input.GetUrls(flags, &wg)
+		fmt.Println("Done.")
+		input.Archive(flags, &wg)
 	} else {
+		// TODO: Make silent functions async.
 		input.GetTokensSilent(flags)
 		input.GetUrlsSilent(flags)
 		input.ArchiveSilent(flags)
