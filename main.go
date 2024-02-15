@@ -15,28 +15,22 @@ type urls struct {
 func main() {
 	input := NewInput()
 	flags := GetFlags()
+	var wg sync.WaitGroup
 	if !flags.silentFlag {
-		// input.GetTokens(flags)
-		// input.GetUrls(flags)
-		// input.Archive(flags)
-		var wg sync.WaitGroup
-		input.GetTokens(flags)
+		input.Tokenize(flags)
 		input.GetUrls(flags, &wg)
 		fmt.Println("Done.")
 		input.Archive(flags, &wg)
-	} else {
-		// TODO: Make silent functions async.
-		input.GetTokensSilent(flags)
-		input.GetUrlsSilent(flags)
-		input.ArchiveSilent(flags)
-	}
+		fmt.Printf("\nSUCCESS! These are the links to the archives:\n")
 
-	if flags.silentFlag {
 		for i := range input.results {
 			fmt.Println(input.results[i])
 		}
 	} else {
-		fmt.Printf("\nSUCCESS! These are the links to the archives:\n")
+		input.TokenizeSilent(flags)
+		input.GetUrlsSilent(flags, &wg)
+		input.ArchiveSilent(flags)
+
 		for i := range input.results {
 			fmt.Println(input.results[i])
 		}

@@ -14,7 +14,7 @@ func TestTokenizeUrl(t *testing.T) {
 		fileFlag:   "",
 	}
 	input := NewInput()
-	input.GetTokens(&flags)
+	input.Tokenize(&flags)
 
 	fmt.Printf("source is the following: %s\n", input.source)
 
@@ -41,7 +41,7 @@ func TestTokenizeFile(t *testing.T) {
 		fileFlag:   "testfile",
 	}
 	input := NewInput()
-	input.GetTokens(&flags)
+	input.Tokenize(&flags)
 
 	fmt.Printf("source is the following: %s\n", input.source)
 	got := input.tokens
@@ -74,7 +74,7 @@ func TestGetUrls(t *testing.T) {
 	}
 	var wg sync.WaitGroup
 	input := NewInput()
-	input.GetTokens(&flags)
+	input.Tokenize(&flags)
 	input.GetUrls(&flags, &wg)
 	got := input.validUrls
 	fmt.Println(input)
@@ -102,7 +102,7 @@ func TestGetUrlsFile(t *testing.T) {
 	}
 	var wg sync.WaitGroup
 	input := NewInput()
-	input.GetTokens(&flags)
+	input.Tokenize(&flags)
 	fmt.Println(input.tokens)
 	input.GetUrls(&flags, &wg)
 	got := input.validUrls
