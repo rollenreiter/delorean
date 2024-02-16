@@ -14,7 +14,7 @@ import (
 var (
 	Colors  = InitColors()
 	version = "v0.1.0"
-	Greeter = fmt.Sprintf("Welcome to DeLorean %s\n", version)
+	Greeter = fmt.Sprintf("Welcome to DeLorean %s\nType h for help\n", version)
 )
 
 func InterfaceInit(u *urls) {
@@ -55,9 +55,12 @@ func InterfaceAdd(u *urls) {
 	fmt.Print("[" + fmt.Sprint(len(u.tokens)) + "] + ")
 	var new string
 	fmt.Scanln(&new)
-	u.tokens = append(u.tokens, new)
-	fmt.Printf("Successfully added %s to archive list\n", new)
-	fmt.Println()
+	if new != "" && new != "\n" && new != "\t" && new != " " {
+		u.tokens = append(u.tokens, new)
+		fmt.Printf("Successfully added %s to archive list\n", new)
+		fmt.Println()
+	}
+	fmt.Printf("Aborted.\n\n")
 }
 
 func InterfaceList(u *urls) {
@@ -74,8 +77,12 @@ func InterfaceList(u *urls) {
 
 func InterfaceArchive(u *urls) {
 	var wg sync.WaitGroup
-	u.ArchiveInter(&wg)
-	u.Finish()
+	if len(u.tokens) != 0 {
+		u.ArchiveInter(&wg)
+		u.Finish()
+	}
+	fmt.Println("Nothing to archive.")
+	fmt.Println()
 }
 
 func (u *urls) ArchiveInter(wg *sync.WaitGroup) {
