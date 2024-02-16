@@ -18,13 +18,12 @@ var (
 )
 
 func InterfaceInit(u *urls) {
-	Prompt := fmt.Sprint("> ")
 	fmt.Print(Greeter)
 
 	var s string
 	r := bufio.NewReader(os.Stdin)
 	for {
-		fmt.Print(Prompt)
+		fmt.Print("[" + fmt.Sprint(len(u.tokens)) + "] > ")
 		s, _ = r.ReadString('\n')
 		s = strings.TrimSpace(s)
 		switch s {
@@ -48,15 +47,17 @@ func InterfaceHelp() {
 	fmt.Printf("l\tList all links in the archive list\n")
 	fmt.Printf("a\tAdd a URL to the archive list\n")
 	fmt.Printf("w\tArchive all URLs in archive list\n")
-	fmt.Printf("\n")
+	fmt.Println()
 }
 
 func InterfaceAdd(u *urls) {
 	fmt.Println("Enter a URL to add to the archive list:")
+	fmt.Print("[" + fmt.Sprint(len(u.tokens)) + "] + ")
 	var new string
 	fmt.Scanln(&new)
 	u.tokens = append(u.tokens, new)
 	fmt.Printf("Successfully added %s to archive list\n", new)
+	fmt.Println()
 }
 
 func InterfaceList(u *urls) {
