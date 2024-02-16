@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -40,12 +39,7 @@ func (u *urls) Tokenize(f *cmdflags) {
 	// behaviour when reading from stdin
 	if f.urlFlag == "" && f.fileFlag == "" {
 		u.source = "stdin"
-		fmt.Println("Enter a URL to archive:")
-		u.tokens = append(u.tokens, "")
-		_, err := fmt.Scanln(&u.tokens[0])
-		if err != nil {
-			log.Fatal(err)
-		}
+		InterfaceInit(u)
 	}
 }
 
@@ -75,14 +69,10 @@ func (u *urls) TokenizeSilent(f *cmdflags) {
 	}
 
 	// behaviour when reading from stdin
+	// TODO: make actual interactive mode
 	if f.urlFlag == "" && f.fileFlag == "" {
 		u.source = "stdin"
-		fmt.Println("Enter a URL to archive:")
-		u.tokens = append(u.tokens, "")
-		_, err := fmt.Scanln(&u.tokens[0])
-		if err != nil {
-			log.Fatal(err)
-		}
+		InterfaceInit(u)
 	}
 }
 
@@ -146,20 +136,6 @@ func (u *urls) GetUrls(f *cmdflags, wg *sync.WaitGroup) {
 				}(url)
 			}
 		}
-
-	case "stdin":
-		{
-			fmt.Println("Validating URL...")
-			// TODO: make an actual interactive mode
-			processed := preprocess(u.tokens)
-			_, err := http.Get(processed[0])
-			if err != nil {
-				log.Fatal(err)
-			} else {
-				u.validUrls = append(u.validUrls, processed[0])
-			}
-			fmt.Println("Done.")
-		}
 	}
 	wg.Wait()
 }
@@ -217,20 +193,6 @@ func (u *urls) GetUrlsSilent(f *cmdflags, wg *sync.WaitGroup) {
 					}
 				}(url)
 			}
-		}
-
-	case "stdin":
-		{
-			// TODO: make an actual interactive mode
-			fmt.Println("Validating URL...")
-			processed := preprocess(u.tokens)
-			_, err := http.Get(processed[0])
-			if err != nil {
-				log.Fatal(err)
-			} else {
-				u.validUrls = append(u.validUrls, processed[0])
-			}
-			fmt.Println("Done.")
 		}
 	}
 	wg.Wait()
