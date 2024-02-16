@@ -6,4 +6,6 @@ delorean
 *.dylib
 *.test
 *.out
+*_test.go
+testfile
 go.work
