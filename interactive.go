@@ -3,92 +3,65 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
+	"net/http"
 	"os"
-	"runtime"
+	"regexp"
 	"strings"
+	"sync"
 )
 
-type Colors struct {
-	bold   string
-	reset  string
-	red    string
-	green  string
-	yellow string
-	blue   string
-	purple string
-	cyan   string
-	gray   string
-	white  string
-}
-
-func GetColors() Colors {
-	var c Colors
-	if runtime.GOOS == "windows" {
-		c = Colors{
-			"", "", "", "", "", "", "", "", "", "",
-		}
-	} else {
-		c = Colors{
-			"\033[1m",
-			"\033[0m",
-			"\033[31m",
-			"\033[32m",
-			"\033[33m",
-			"\033[34m",
-			"\033[35m",
-			"\033[36m",
-			"\033[37m",
-			"\033[97m",
-		}
-	}
-	return c
-}
+var (
+	Colors  = InitColors()
+	version = "v0.1.0"
+	Greeter = fmt.Sprintf("Welcome to DeLorean %s\n", version)
+)
 
 func InterfaceInit(u *urls) {
-	version := 1.0
-	fmt.Fprintf(os.Stderr, "DeLorean Version %f (interactive mode)\nPress h for help \n", version)
-	c := GetColors()
+	Prompt := fmt.Sprint("> ")
+	fmt.Print(Greeter)
 
 	var s string
 	r := bufio.NewReader(os.Stdin)
 	for {
-		fmt.Print(c.blue + "> " + c.reset)
+		fmt.Print(Prompt)
 		s, _ = r.ReadString('\n')
 		s = strings.TrimSpace(s)
 		switch s {
 		case "q":
 			os.Exit(1)
 		case "a":
-			InterfaceAdd(u, &c)
+			InterfaceAdd(u)
 		case "h":
-			InterfaceHelp(&c)
+			InterfaceHelp()
 		case "l":
-			InterfaceList(u, &c)
+			InterfaceList(u)
+		case "w":
+			InterfaceArchive(u)
 		}
 	}
 }
 
-func InterfaceHelp(c *Colors) {
+func InterfaceHelp() {
 	fmt.Printf("Keybinds:\n")
-	fmt.Printf("%sq\t%sQuit interactive interface\n", c.bold, c.reset)
-	fmt.Printf("%sl\t%sList all links in the archive list\n", c.bold, c.reset)
-	fmt.Printf("%sa\t%sAdd a URL to the archive list\n", c.bold, c.reset)
-	fmt.Printf("%sw\t%sArchive all URLs in archive list, then quit\n", c.bold, c.reset)
+	fmt.Printf("q\tQuit interactive interface\n")
+	fmt.Printf("l\tList all links in the archive list\n")
+	fmt.Printf("a\tAdd a URL to the archive list\n")
+	fmt.Printf("w\tArchive all URLs in archive list\n")
 	fmt.Printf("\n")
 }
 
-func InterfaceAdd(u *urls, c *Colors) {
+func InterfaceAdd(u *urls) {
 	fmt.Println("Enter a URL to add to the archive list:")
-	fmt.Print(c.red + "> " + c.reset)
 	var new string
 	fmt.Scanln(&new)
 	u.tokens = append(u.tokens, new)
 	fmt.Printf("Successfully added %s to archive list\n", new)
 }
 
-func InterfaceList(u *urls, c *Colors) {
+func InterfaceList(u *urls) {
 	if len(u.tokens) == 0 {
-		fmt.Printf("The archive list is currently %sempty%s\n\n", c.gray, c.reset)
+		fmt.Printf("The archive list is currently empty\n\n")
 	} else {
 		fmt.Printf("These links will be archived on write:\n")
 		for i, s := range u.tokens {
@@ -96,4 +69,81 @@ func InterfaceList(u *urls, c *Colors) {
 		}
 		fmt.Println()
 	}
+}
+
+func InterfaceArchive(u *urls) {
+	var wg sync.WaitGroup
+	u.ArchiveInter(&wg)
+	u.Finish()
+}
+
+func (u *urls) ArchiveInter(wg *sync.WaitGroup) {
+	preprocess := func(s []string) []string {
+		p := make([]string, len(s))
+		for i, url := range s {
+			if len(url) <= 8 {
+				p[i] = fmt.Sprintf("http://%s", url)
+				continue
+			}
+			if url[:7] == "http://" || url[:8] == "https://" {
+				p[i] = url
+				continue
+			}
+			p[i] = fmt.Sprintf("http://%s", url)
+		}
+		return p
+	}
+
+	fmt.Println("Validating URLs...")
+	processedUrls := preprocess(u.tokens)
+	for _, url := range processedUrls {
+		wg.Add(1)
+		go func(url string) {
+			_, err := http.Get(url)
+			if err != nil {
+				fmt.Printf("Could not resolve \"%s\", skipping\n", url)
+				u.results = append(u.results, fmt.Sprintf("UNARCHIVED: %s", url))
+				wg.Done()
+				return
+			} else {
+				u.validUrls = append(u.validUrls, url)
+				wg.Done()
+			}
+		}(url)
+	}
+	wg.Wait()
+
+	fmt.Printf("\nArchiving all URLs. Depending on the Internet Archive's traffic, this may take a long time.\n")
+	for _, url := range u.validUrls {
+		wg.Add(1)
+		go func(url string) {
+			fmt.Printf("Archiving %s...\n", url)
+			resp, err := http.Get(fmt.Sprintf("https://web.archive.org/save/%s", url))
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer resp.Body.Close()
+			archive := resp.Request.URL.String()
+
+			validOutput := regexp.MustCompile(`http.:\/\/web\.archive\.org\/web\/[0-9]{14}\/`)
+			if !validOutput.Match([]byte(archive)) {
+				fmt.Printf("\"%s\" couldn't be archived. This may be due to the website being blacklisted from archive.org. For more information, please try archiving it in your browser\n",
+					url)
+				u.results = append(u.results, fmt.Sprintf("UNARCHIVED: %s", url))
+				wg.Done()
+			} else {
+				u.results = append(u.results, archive)
+				wg.Done()
+			}
+		}(url)
+	}
+	wg.Wait()
+}
+
+func (u urls) Finish() {
+	fmt.Println("\nSUCCESS! These are the links to the archives:")
+	for _, s := range u.results {
+		fmt.Println(s)
+	}
+	os.Exit(0)
 }
