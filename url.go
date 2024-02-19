@@ -125,7 +125,7 @@ func (u *urls) GetUrls(f *cmdflags, wg *sync.WaitGroup) {
 				go func(url string) {
 					_, err := http.Get(url)
 					if err != nil {
-						fmt.Printf("Could not resolve \"%s\", skipping\n", url)
+						fmt.Printf("Could not resolve \"%s\", skipping...\n", url)
 						u.results = append(u.results, fmt.Sprintf("UNARCHIVED: %s", url))
 						wg.Done()
 						return

@@ -23,16 +23,16 @@ func main() {
 		input.Archive(flags, &wg)
 		fmt.Printf("\nSUCCESS! These are the links to the archives:\n")
 
-		for i := range input.results {
-			fmt.Println(input.results[i])
+		for _, s := range input.results {
+			fmt.Println(s)
 		}
 	} else {
 		input.TokenizeSilent(flags)
 		input.GetUrlsSilent(flags, &wg)
-		input.ArchiveSilent(flags)
+		input.ArchiveSilent(flags, &wg)
 
-		for i := range input.results {
-			fmt.Println(input.results[i])
+		for _, s := range input.results {
+			fmt.Println(s)
 		}
 	}
 }
