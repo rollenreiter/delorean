@@ -7,7 +7,6 @@ import (
 	"testing"
 )
 
-// TODO: Adjust test cases for new async functions
 func TestTokenizeUrl(t *testing.T) {
 	flags := cmdflags{
 		silentFlag: false,
