@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"slices"
 	"sync"
 	"testing"
 )
@@ -10,7 +11,7 @@ import (
 func TestTokenizeUrl(t *testing.T) {
 	flags := cmdflags{
 		silentFlag: false,
-		urlFlag:    "https://github.com/rollenreiter/delorean junktext http://asahina.moe github.com/stompiegit",
+		urlFlag:    "https://github.com/rollenreiter/delorean junktext http://asahina.moe github.com/stompman34",
 		fileFlag:   "",
 	}
 	input := NewInput()
@@ -21,7 +22,7 @@ func TestTokenizeUrl(t *testing.T) {
 	got := input.tokens
 	fmt.Printf("got following tokens in input.tokens:\n%s\n", got)
 
-	want := []string{"https://github.com/rollenreiter/delorean", "junktext", "http://asahina.moe", "github.com/stompiegit"}
+	want := []string{"https://github.com/rollenreiter/delorean", "junktext", "http://asahina.moe", "github.com/stompman34"}
 	fmt.Printf("want following tokens:\n%s\n", want)
 
 	if len(got) == 0 {
@@ -53,7 +54,7 @@ func TestTokenizeFile(t *testing.T) {
 		"https://github.com/rollenreiter/delorean",
 		"junktext",
 		"http://asahina.moe",
-		"github.com/stompiegit",
+		"github.com/stompman34",
 	}
 
 	if len(got) == 0 {
@@ -69,7 +70,7 @@ func TestTokenizeFile(t *testing.T) {
 func TestGetUrls(t *testing.T) {
 	flags := cmdflags{
 		silentFlag: false,
-		urlFlag:    "https://github.com/rollenreiter/delorean junktext http://asahina.moe github.com/stompiegit",
+		urlFlag:    "https://github.com/rollenreiter/delorean junktext http://asahina.moe github.com/stompman34",
 		fileFlag:   "",
 	}
 	var wg sync.WaitGroup
@@ -81,15 +82,15 @@ func TestGetUrls(t *testing.T) {
 	want := []string{
 		"https://github.com/rollenreiter/delorean",
 		"http://asahina.moe",
-		"http://github.com/stompiegit",
+		"http://github.com/stompman34",
 	}
 
 	if len(got) == 0 {
 		t.Errorf("slice %q is empty, wanted %q", got, want)
 	}
 	for i := range got {
-		if got[i] != want[i] {
-			t.Errorf("got %q, wanted %q", got, want)
+		if !slices.Contains(got, want[i]) {
+			t.Errorf("%q is not within %q", want, got)
 		}
 	}
 }
@@ -110,15 +111,15 @@ func TestGetUrlsFile(t *testing.T) {
 	want := []string{
 		"https://github.com/rollenreiter/delorean",
 		"http://asahina.moe",
-		"http://github.com/stompiegit",
+		"http://github.com/stompman34",
 	}
 
 	if len(got) == 0 {
 		t.Errorf("slice %q is empty, wanted %q", got, want)
 	}
 	for i := range got {
-		if got[i] != want[i] {
-			t.Errorf("got %q, wanted %q", got, want)
+		if !slices.Contains(got, want[i]) {
+			t.Errorf("%q is not within %q", want, got)
 		}
 	}
 }
