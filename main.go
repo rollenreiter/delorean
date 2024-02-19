@@ -29,7 +29,7 @@ func main() {
 	} else {
 		input.TokenizeSilent(flags)
 		input.GetUrlsSilent(flags, &wg)
-		input.ArchiveSilent(flags)
+		input.ArchiveSilent(flags, &wg)
 
 		for i := range input.results {
 			fmt.Println(input.results[i])
