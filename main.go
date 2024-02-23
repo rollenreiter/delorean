@@ -5,19 +5,11 @@ import (
 	"sync"
 )
 
-type orderurls struct {
+type urls struct {
 	source    string
 	tokens    []token
 	validUrls []token
 	results   []token
-}
-
-// TODO: deprecate this after testing, fixing interactive interface
-type urls struct {
-	source    string
-	tokens    []string
-	validUrls []string
-	results   []string
 }
 
 type token struct {
@@ -36,6 +28,7 @@ func main() {
 		input.Archive(flags, &wg)
 		fmt.Printf("\nSUCCESS! These are the links to the archives:\n")
 
+		Sort(input.results, flags.alphaFlag)
 		for _, s := range input.results {
 			fmt.Println(s.content)
 		}
@@ -44,14 +37,15 @@ func main() {
 		input.GetUrlsSilent(flags, &wg)
 		input.ArchiveSilent(flags, &wg)
 
+		Sort(input.results, flags.alphaFlag)
 		for _, s := range input.results {
 			fmt.Println(s.content)
 		}
 	}
 }
 
-func NewInput() orderurls {
-	i := orderurls{
+func NewInput() urls {
+	i := urls{
 		source:    "",
 		tokens:    make([]token, 0),
 		validUrls: make([]token, 0),

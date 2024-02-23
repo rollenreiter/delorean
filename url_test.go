@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-// TODO: Adjust test cases for new async functions
+// FIXME: test cases are no longer valid due to change in type
 func TestTokenizeUrl(t *testing.T) {
 	flags := cmdflags{
 		silentFlag: false,
