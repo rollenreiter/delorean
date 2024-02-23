@@ -17,7 +17,7 @@ func (u *urls) Archive(f *cmdflags, wg *sync.WaitGroup) {
 	fmt.Printf("\nArchiving all URLs. Depending on the Internet Archive's traffic, this may take a long time.\n")
 	for _, url := range u.validUrls {
 		wg.Add(1)
-		go func(url string) {
+		go func(url token) {
 			resp, err := http.Get(fmt.Sprintf("https://web.archive.org/save/%s", url))
 			if err != nil {
 				log.Fatal(err)
@@ -29,10 +29,19 @@ func (u *urls) Archive(f *cmdflags, wg *sync.WaitGroup) {
 			if !validOutput.Match([]byte(archive)) {
 				fmt.Printf("\"%s\" couldn't be archived. This may be due to the website being blacklisted from archive.org. For more information, please try archiving it in your browser\n",
 					url)
-				u.results = append(u.results, fmt.Sprintf("UNARCHIVED: %s", url))
+				newToken := token{
+					order:   url.order,
+					content: fmt.Sprintf("UNARCHIVED: %s", url),
+				}
+				u.results = append(u.results, newToken)
 				wg.Done()
 			} else {
-				u.results = append(u.results, archive)
+
+				newToken := token{
+					order:   url.order,
+					content: archive,
+				}
+				u.results = append(u.results, newToken)
 				wg.Done()
 			}
 		}(url)
@@ -41,9 +50,10 @@ func (u *urls) Archive(f *cmdflags, wg *sync.WaitGroup) {
 }
 
 func (u *urls) ArchiveSilent(f *cmdflags, wg *sync.WaitGroup) {
+	fmt.Printf("\nArchiving all URLs. Depending on the Internet Archive's traffic, this may take a long time.\n")
 	for _, url := range u.validUrls {
 		wg.Add(1)
-		go func(url string) {
+		go func(url token) {
 			resp, err := http.Get(fmt.Sprintf("https://web.archive.org/save/%s", url))
 			if err != nil {
 				log.Fatal(err)
@@ -53,10 +63,21 @@ func (u *urls) ArchiveSilent(f *cmdflags, wg *sync.WaitGroup) {
 
 			validOutput := regexp.MustCompile(`http.:\/\/web\.archive\.org\/web\/[0-9]{14}\/`)
 			if !validOutput.Match([]byte(archive)) {
-				u.results = append(u.results, fmt.Sprintf("UNARCHIVED: %s", url))
+				fmt.Printf("\"%s\" couldn't be archived. This may be due to the website being blacklisted from archive.org. For more information, please try archiving it in your browser\n",
+					url)
+				newToken := token{
+					order:   url.order,
+					content: fmt.Sprintf("UNARCHIVED: %s", url),
+				}
+				u.results = append(u.results, newToken)
 				wg.Done()
 			} else {
-				u.results = append(u.results, archive)
+
+				newToken := token{
+					order:   url.order,
+					content: archive,
+				}
+				u.results = append(u.results, newToken)
 				wg.Done()
 			}
 		}(url)

@@ -7,9 +7,14 @@ import (
 
 type urls struct {
 	source    string
-	tokens    []string
-	validUrls []string
-	results   []string
+	tokens    []token
+	validUrls []token
+	results   []token
+}
+
+type token struct {
+	order   int
+	content string
 }
 
 func main() {
@@ -40,9 +45,9 @@ func main() {
 func NewInput() urls {
 	i := urls{
 		source:    "",
-		tokens:    make([]string, 0),
-		validUrls: make([]string, 0),
-		results:   make([]string, 0),
+		tokens:    make([]token, 0),
+		validUrls: make([]token, 0),
+		results:   make([]token, 0),
 	}
 	return i
 }
