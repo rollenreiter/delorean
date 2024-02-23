@@ -11,7 +11,7 @@ import (
 
 // Tokenize determines the URL source by reading f, then sets u.source accordingly and appends
 // every token inside of the source to u.tokens.
-func (u *urls) Tokenize(f *cmdflags) {
+func (u *orderurls) Tokenize(f *cmdflags) {
 	// behaviour when reading from a file
 	switch {
 	case f.fileFlag != "":
@@ -27,7 +27,7 @@ func (u *urls) Tokenize(f *cmdflags) {
 			s := bufio.NewScanner(file)
 			s.Split(bufio.ScanWords)
 
-			for i := 1; s.Scan(); i++ {
+			for i := 0; s.Scan(); i++ {
 				newToken := token{
 					order:   i,
 					content: s.Text(),
@@ -35,7 +35,6 @@ func (u *urls) Tokenize(f *cmdflags) {
 				u.tokens = append(u.tokens, newToken)
 			}
 		}
-
 	// behaviour when reading from urlFlag
 	case f.urlFlag != "":
 		{
@@ -54,12 +53,13 @@ func (u *urls) Tokenize(f *cmdflags) {
 	case f.urlFlag == "" && f.fileFlag == "":
 		{
 			u.source = "stdin"
-			InterfaceInit(u)
+			// FIXME: will need to add ordereurls type
+			// InterfaceInit(u)
 		}
 	}
 }
 
-func (u *urls) TokenizeSilent(f *cmdflags) {
+func (u *orderurls) TokenizeSilent(f *cmdflags) {
 	// behaviour when reading from a file
 	switch {
 	case f.fileFlag != "":
@@ -102,7 +102,8 @@ func (u *urls) TokenizeSilent(f *cmdflags) {
 	case f.urlFlag == "" && f.fileFlag == "":
 		{
 			u.source = "stdin"
-			InterfaceInit(u)
+			// FIXME: will need to add ordereurls type
+			// InterfaceInit(u)
 		}
 	}
 }
@@ -110,7 +111,7 @@ func (u *urls) TokenizeSilent(f *cmdflags) {
 // GetUrls prepends "http://" to every non-URL string in u.tokens and sends a http GET
 // request to each to determine if it is valid.
 // Once validity is verified, the URL is added to u.validUrls. Invalid URLs are discarded.
-func (u *urls) GetUrls(f *cmdflags, wg *sync.WaitGroup) {
+func (u *orderurls) GetUrls(f *cmdflags, wg *sync.WaitGroup) {
 	// preprocess all urls so that they satisfy http.Get
 	preprocess := func(s []token) []token {
 		// make new array of tokens
@@ -121,7 +122,7 @@ func (u *urls) GetUrls(f *cmdflags, wg *sync.WaitGroup) {
 			if len(url.content) <= 8 {
 				p[i] = token{
 					order:   url.order,
-					content: fmt.Sprintf("http://%s", url),
+					content: fmt.Sprintf("http://%s", url.content),
 				}
 				continue
 			}
@@ -134,7 +135,7 @@ func (u *urls) GetUrls(f *cmdflags, wg *sync.WaitGroup) {
 			}
 			p[i] = token{
 				order:   url.order,
-				content: fmt.Sprintf("http://%s", url),
+				content: fmt.Sprintf("http://%s", url.content),
 			}
 		}
 		return p
@@ -188,7 +189,7 @@ func (u *urls) GetUrls(f *cmdflags, wg *sync.WaitGroup) {
 	wg.Wait()
 }
 
-func (u *urls) GetUrlsSilent(f *cmdflags, wg *sync.WaitGroup) {
+func (u *orderurls) GetUrlsSilent(f *cmdflags, wg *sync.WaitGroup) {
 	// preprocess all urls so that they satisfy http.Get
 	preprocess := func(s []token) []token {
 		// make new array of tokens
@@ -199,7 +200,7 @@ func (u *urls) GetUrlsSilent(f *cmdflags, wg *sync.WaitGroup) {
 			if len(url.content) <= 8 {
 				p[i] = token{
 					order:   url.order,
-					content: fmt.Sprintf("http://%s", url),
+					content: fmt.Sprintf("http://%s", url.content),
 				}
 				continue
 			}
@@ -212,7 +213,7 @@ func (u *urls) GetUrlsSilent(f *cmdflags, wg *sync.WaitGroup) {
 			}
 			p[i] = token{
 				order:   url.order,
-				content: fmt.Sprintf("http://%s", url),
+				content: fmt.Sprintf("http://%s", url.content),
 			}
 		}
 		return p

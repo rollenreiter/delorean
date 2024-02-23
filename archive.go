@@ -13,12 +13,13 @@ import (
 // Should the final redirect's URL not match the usual pattern of an archived web page,
 // Archive will assume an issue on the Internet Archive's end and prompt the user to
 // archive the URL that caused the issue in their browser.
-func (u *urls) Archive(f *cmdflags, wg *sync.WaitGroup) {
+func (u *orderurls) Archive(f *cmdflags, wg *sync.WaitGroup) {
 	fmt.Printf("\nArchiving all URLs. Depending on the Internet Archive's traffic, this may take a long time.\n")
 	for _, url := range u.validUrls {
 		wg.Add(1)
 		go func(url token) {
-			resp, err := http.Get(fmt.Sprintf("https://web.archive.org/save/%s", url))
+			fmt.Printf("Archiving %s\n", url.content)
+			resp, err := http.Get(fmt.Sprintf("https://web.archive.org/save/%s", url.content))
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -28,10 +29,10 @@ func (u *urls) Archive(f *cmdflags, wg *sync.WaitGroup) {
 			validOutput := regexp.MustCompile(`http.:\/\/web\.archive\.org\/web\/[0-9]{14}\/`)
 			if !validOutput.Match([]byte(archive)) {
 				fmt.Printf("\"%s\" couldn't be archived. This may be due to the website being blacklisted from archive.org. For more information, please try archiving it in your browser\n",
-					url)
+					url.content)
 				newToken := token{
 					order:   url.order,
-					content: fmt.Sprintf("UNARCHIVED: %s", url),
+					content: fmt.Sprintf("UNARCHIVED: %s", url.content),
 				}
 				u.results = append(u.results, newToken)
 				wg.Done()
@@ -49,12 +50,12 @@ func (u *urls) Archive(f *cmdflags, wg *sync.WaitGroup) {
 	wg.Wait()
 }
 
-func (u *urls) ArchiveSilent(f *cmdflags, wg *sync.WaitGroup) {
+func (u *orderurls) ArchiveSilent(f *cmdflags, wg *sync.WaitGroup) {
 	fmt.Printf("\nArchiving all URLs. Depending on the Internet Archive's traffic, this may take a long time.\n")
 	for _, url := range u.validUrls {
 		wg.Add(1)
 		go func(url token) {
-			resp, err := http.Get(fmt.Sprintf("https://web.archive.org/save/%s", url))
+			resp, err := http.Get(fmt.Sprintf("https://web.archive.org/save/%s", url.content))
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -64,10 +65,10 @@ func (u *urls) ArchiveSilent(f *cmdflags, wg *sync.WaitGroup) {
 			validOutput := regexp.MustCompile(`http.:\/\/web\.archive\.org\/web\/[0-9]{14}\/`)
 			if !validOutput.Match([]byte(archive)) {
 				fmt.Printf("\"%s\" couldn't be archived. This may be due to the website being blacklisted from archive.org. For more information, please try archiving it in your browser\n",
-					url)
+					url.content)
 				newToken := token{
 					order:   url.order,
-					content: fmt.Sprintf("UNARCHIVED: %s", url),
+					content: fmt.Sprintf("UNARCHIVED: %s", url.content),
 				}
 				u.results = append(u.results, newToken)
 				wg.Done()
