@@ -2,12 +2,10 @@ package main
 
 import (
 	"fmt"
-	"slices"
 	"sync"
 	"testing"
 )
 
-// FIXME: test cases are no longer valid due to change in type
 func TestTokenizeUrl(t *testing.T) {
 	flags := cmdflags{
 		silentFlag: false,
@@ -20,7 +18,6 @@ func TestTokenizeUrl(t *testing.T) {
 	fmt.Printf("source is the following: %s\n", input.source)
 
 	got := input.tokens
-	fmt.Printf("got following tokens in input.tokens:\n%s\n", got)
 
 	want := []string{"https://github.com/rollenreiter/delorean", "junktext", "http://asahina.moe", "github.com/stompman34"}
 	fmt.Printf("want following tokens:\n%s\n", want)
@@ -29,7 +26,7 @@ func TestTokenizeUrl(t *testing.T) {
 		t.Errorf("slice %q is empty, wanted %q", got, want)
 	}
 	for i := range got {
-		if got[i] != want[i] {
+		if got[i].content != want[i] {
 			t.Errorf("got %q, wanted %q", got, want)
 		}
 	}
@@ -46,7 +43,6 @@ func TestTokenizeFile(t *testing.T) {
 
 	fmt.Printf("source is the following: %s\n", input.source)
 	got := input.tokens
-	fmt.Printf("got following tokens in input.tokens:\n%s\n", got)
 
 	want := []string{
 		"foo",
@@ -61,7 +57,7 @@ func TestTokenizeFile(t *testing.T) {
 		t.Errorf("slice %q is empty, wanted %q", got, want)
 	}
 	for i := range got {
-		if got[i] != want[i] {
+		if got[i].content != want[i] {
 			t.Errorf("got %q, wanted %q", got, want)
 		}
 	}
@@ -88,8 +84,9 @@ func TestGetUrls(t *testing.T) {
 	if len(got) == 0 {
 		t.Errorf("slice %q is empty, wanted %q", got, want)
 	}
+	Sort(got, false)
 	for i := range got {
-		if !slices.Contains(got, want[i]) {
+		if got[i].content != want[i] {
 			t.Errorf("%q is not within %q", want, got)
 		}
 	}
@@ -117,8 +114,9 @@ func TestGetUrlsFile(t *testing.T) {
 	if len(got) == 0 {
 		t.Errorf("slice %q is empty, wanted %q", got, want)
 	}
+	Sort(got, false)
 	for i := range got {
-		if !slices.Contains(got, want[i]) {
+		if got[i].content != want[i] {
 			t.Errorf("%q is not within %q", want, got)
 		}
 	}

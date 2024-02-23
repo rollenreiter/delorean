@@ -10,9 +10,10 @@ import (
 )
 
 var (
-	Colors  = InitColors()
-	version = "v0.1.0"
-	Greeter = fmt.Sprintf("Welcome to DeLorean %s\nType h for help\n\n", version)
+	Colors       = InitColors()
+	version      = "v0.1.0"
+	Greeter      = fmt.Sprintf("Welcome to DeLorean %s\nType h for help\n\n", version)
+	Alphabetical = false
 )
 
 func InterfaceInit(u *urls) {
@@ -37,6 +38,8 @@ func InterfaceInit(u *urls) {
 			InterfaceList(u)
 		case "w":
 			InterfaceArchive(u)
+		case "s":
+			InterfaceSort(u)
 		default:
 			fmt.Printf("Unknown command.\nType h for help\n\n")
 		}
@@ -48,6 +51,8 @@ func InterfaceHelp() {
 	fmt.Printf("a - Add a URL to the archive list\n")
 	fmt.Printf("l - List all links in the archive list\n")
 	fmt.Printf("d - Remove a URL from the archive list\n\n")
+
+	fmt.Printf("s - Toggle alphabetical sorting\n")
 	fmt.Printf("w - Archive all URLs in archive list\n")
 	fmt.Printf("q - Quit interactive interface\n")
 	fmt.Println()
@@ -111,6 +116,18 @@ func InterfaceList(u *urls) {
 	}
 }
 
+func InterfaceSort(u *urls) {
+	if Alphabetical {
+		Alphabetical = false
+		Sort(u.tokens, Alphabetical)
+		fmt.Printf("Sorted URLs in FIFO order.\n\n")
+	} else {
+		Alphabetical = true
+		Sort(u.tokens, Alphabetical)
+		fmt.Printf("Sorted URLs in alphabetical order.\n\n")
+	}
+}
+
 func InterfaceArchive(u *urls) {
 	var wg sync.WaitGroup
 	if len(u.tokens) != 0 {
@@ -122,7 +139,7 @@ func InterfaceArchive(u *urls) {
 
 func (u urls) Finish() {
 	fmt.Println("\nSUCCESS! These are the links to the archives:")
-	Sort(u.results)
+	Sort(u.results, Alphabetical)
 	for _, s := range u.results {
 		fmt.Println(s.content)
 	}
