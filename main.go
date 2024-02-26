@@ -17,27 +17,28 @@ type token struct {
 	content string
 }
 
+var Flags *cmdflags = GetFlags()
+
 func main() {
 	input := NewInput()
-	flags := GetFlags()
 	var wg sync.WaitGroup
-	if !flags.silentFlag {
-		input.Tokenize(flags)
-		input.GetUrls(flags, &wg)
+	if !Flags.silentFlag {
+		input.Tokenize()
+		input.GetUrls(&wg)
 		fmt.Println("Done.")
-		input.Archive(flags, &wg)
+		input.Archive(&wg)
 		fmt.Printf("\nSUCCESS! These are the links to the archives:\n")
 
-		Sort(input.results, flags.alphaFlag)
+		Sort(input.results, Flags.alphaFlag)
 		for _, s := range input.results {
 			fmt.Println(s.content)
 		}
 	} else {
-		input.TokenizeSilent(flags)
-		input.GetUrlsSilent(flags, &wg)
-		input.ArchiveSilent(flags, &wg)
+		input.TokenizeSilent()
+		input.GetUrlsSilent(&wg)
+		input.ArchiveSilent(&wg)
 
-		Sort(input.results, flags.alphaFlag)
+		Sort(input.results, Flags.alphaFlag)
 		for _, s := range input.results {
 			fmt.Println(s.content)
 		}

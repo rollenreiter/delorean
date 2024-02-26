@@ -11,12 +11,12 @@ import (
 
 // Tokenize determines the URL source by reading f, then sets u.source accordingly and appends
 // every token inside of the source to u.tokens.
-func (u *urls) Tokenize(f *cmdflags) {
+func (u *urls) Tokenize() {
 	// behaviour when reading from a file
 	switch {
-	case f.fileFlag != "":
+	case Flags.fileFlag != "":
 		{
-			u.source = f.fileFlag
+			u.source = Flags.fileFlag
 			file, err := os.Open(u.source)
 			if err != nil {
 				fmt.Printf("Failed reading from %s\n", u.source)
@@ -36,10 +36,10 @@ func (u *urls) Tokenize(f *cmdflags) {
 			}
 		}
 	// behaviour when reading from urlFlag
-	case f.urlFlag != "":
+	case Flags.urlFlag != "":
 		{
 			u.source = "urlFlag"
-			urls := strings.Fields(f.urlFlag)
+			urls := strings.Fields(Flags.urlFlag)
 			for o, c := range urls {
 				newToken := token{
 					order:   o,
@@ -50,7 +50,7 @@ func (u *urls) Tokenize(f *cmdflags) {
 		}
 
 	// behaviour when reading from stdin
-	case f.urlFlag == "" && f.fileFlag == "":
+	case Flags.urlFlag == "" && Flags.fileFlag == "":
 		{
 			u.source = "stdin"
 			InterfaceInit(u)
@@ -58,12 +58,12 @@ func (u *urls) Tokenize(f *cmdflags) {
 	}
 }
 
-func (u *urls) TokenizeSilent(f *cmdflags) {
+func (u *urls) TokenizeSilent() {
 	// behaviour when reading from a file
 	switch {
-	case f.fileFlag != "":
+	case Flags.fileFlag != "":
 		{
-			u.source = f.fileFlag
+			u.source = Flags.fileFlag
 			file, err := os.Open(u.source)
 			if err != nil {
 				file.Close()
@@ -83,10 +83,10 @@ func (u *urls) TokenizeSilent(f *cmdflags) {
 		}
 
 	// behaviour when reading from urlFlag
-	case f.urlFlag != "":
+	case Flags.urlFlag != "":
 		{
 			u.source = "urlFlag"
-			urls := strings.Fields(f.urlFlag)
+			urls := strings.Fields(Flags.urlFlag)
 			for o, c := range urls {
 				newToken := token{
 					order:   o,
@@ -97,7 +97,7 @@ func (u *urls) TokenizeSilent(f *cmdflags) {
 		}
 
 	// behaviour when reading from stdin
-	case f.urlFlag == "" && f.fileFlag == "":
+	case Flags.urlFlag == "" && Flags.fileFlag == "":
 		{
 			u.source = "stdin"
 			InterfaceInit(u)
@@ -137,9 +137,9 @@ func preprocess(s []token) []token {
 // GetUrls prepends "http://" to every non-URL string in u.tokens and sends a http GET
 // request to each to determine if it is valid.
 // Once validity is verified, the URL is added to u.validUrls. Invalid URLs are discarded.
-func (u *urls) GetUrls(f *cmdflags, wg *sync.WaitGroup) {
+func (u *urls) GetUrls(wg *sync.WaitGroup) {
 	switch u.source {
-	case f.fileFlag:
+	case Flags.fileFlag:
 		{
 			fmt.Println("Validating URLs...")
 			processedUrls := preprocess(u.tokens)
@@ -186,9 +186,9 @@ func (u *urls) GetUrls(f *cmdflags, wg *sync.WaitGroup) {
 	wg.Wait()
 }
 
-func (u *urls) GetUrlsSilent(f *cmdflags, wg *sync.WaitGroup) {
+func (u *urls) GetUrlsSilent(wg *sync.WaitGroup) {
 	switch u.source {
-	case f.fileFlag:
+	case Flags.fileFlag:
 		{
 			processedUrls := preprocess(u.tokens)
 			for _, url := range processedUrls {
