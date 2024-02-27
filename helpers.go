@@ -1,5 +1,10 @@
 package main
 
+import (
+	"fmt"
+	"strings"
+)
+
 // Basic Bubble Sort for token types
 func Sort(u []token, alphabetical bool) {
 	swap := func(u []token, p1 int, p2 int) {
@@ -32,4 +37,33 @@ func Sort(u []token, alphabetical bool) {
 			}
 		}
 	}
+}
+
+// Preprocess every token in s so that they satisfy http.Get
+func Preprocess(s []token) []token {
+	// make new array of tokens
+	p := make([]token, len(s))
+
+	for i, url := range s {
+		// string less than 8 bytes cant possibly be a string that satisfies http.Get
+		if len(url.content) <= 8 {
+			p[i] = token{
+				order:   url.order,
+				content: fmt.Sprintf("http://%s", strings.ToLower(url.content)),
+			}
+			continue
+		}
+		if url.content[:7] == "http://" || url.content[:8] == "https://" {
+			p[i] = token{
+				order:   url.order,
+				content: strings.ToLower(url.content),
+			}
+			continue
+		}
+		p[i] = token{
+			order:   url.order,
+			content: fmt.Sprintf("http://%s", strings.ToLower(url.content)),
+		}
+	}
+	return p
 }
