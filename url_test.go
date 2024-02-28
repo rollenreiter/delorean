@@ -6,14 +6,30 @@ import (
 	"testing"
 )
 
-func TestTokenizeUrl(t *testing.T) {
-	flags := cmdflags{
-		silentFlag: false,
+func FromTestURL() cmdflags {
+	f := cmdflags{
 		urlFlag:    "https://github.com/rollenreiter/delorean junktext http://asahina.moe github.com/stompman34",
 		fileFlag:   "",
+		silentFlag: false,
+		alphaFlag:  false,
 	}
+	return f
+}
+
+func FromTestfile() cmdflags {
+	f := cmdflags{
+		urlFlag:    "",
+		fileFlag:   "testfile",
+		silentFlag: false,
+		alphaFlag:  false,
+	}
+	return f
+}
+
+func TestTokenizeUrl(t *testing.T) {
+	Flags.SetFlags(FromTestURL)
 	input := NewInput()
-	input.Tokenize(&flags)
+	input.Tokenize()
 
 	fmt.Printf("source is the following: %s\n", input.source)
 
@@ -33,13 +49,9 @@ func TestTokenizeUrl(t *testing.T) {
 }
 
 func TestTokenizeFile(t *testing.T) {
-	flags := cmdflags{
-		silentFlag: false,
-		urlFlag:    "",
-		fileFlag:   "testfile",
-	}
+	Flags.SetFlags(FromTestfile)
 	input := NewInput()
-	input.Tokenize(&flags)
+	input.Tokenize()
 
 	fmt.Printf("source is the following: %s\n", input.source)
 	got := input.tokens
@@ -64,15 +76,11 @@ func TestTokenizeFile(t *testing.T) {
 }
 
 func TestGetUrls(t *testing.T) {
-	flags := cmdflags{
-		silentFlag: false,
-		urlFlag:    "https://github.com/rollenreiter/delorean junktext http://asahina.moe github.com/stompman34",
-		fileFlag:   "",
-	}
+	Flags.SetFlags(FromTestURL)
 	var wg sync.WaitGroup
 	input := NewInput()
-	input.Tokenize(&flags)
-	input.GetUrls(&flags, &wg)
+	input.Tokenize()
+	input.GetUrls(&wg)
 	got := input.validUrls
 	fmt.Println(input)
 	want := []string{
@@ -93,16 +101,12 @@ func TestGetUrls(t *testing.T) {
 }
 
 func TestGetUrlsFile(t *testing.T) {
-	flags := cmdflags{
-		silentFlag: false,
-		urlFlag:    "",
-		fileFlag:   "testfile",
-	}
+	Flags.SetFlags(FromTestURL)
 	var wg sync.WaitGroup
 	input := NewInput()
-	input.Tokenize(&flags)
+	input.Tokenize()
 	fmt.Println(input.tokens)
-	input.GetUrls(&flags, &wg)
+	input.GetUrls(&wg)
 	got := input.validUrls
 	fmt.Println(got)
 	want := []string{
