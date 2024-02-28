@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"regexp"
 	"sync"
@@ -22,7 +21,8 @@ func (u *urls) Archive(wg *sync.WaitGroup) {
 		go func(url token) {
 			resp, err := http.Get(fmt.Sprintf("https://web.archive.org/save/%s", url.content))
 			if err != nil {
-				log.Fatal(err)
+				fmt.Printf("Couldn't connect to the Internet Archive while trying to archive %s.\n Please check your internet connection.\n", url.content)
+				return
 			}
 			defer resp.Body.Close()
 			archive := resp.Request.URL.String()
@@ -52,10 +52,12 @@ func (u *urls) Archive(wg *sync.WaitGroup) {
 	}
 	wg.Wait()
 	if !Flags.silentFlag {
-		fmt.Printf("\nSUCCESS! These are the links to the archives:\n")
+		fmt.Printf("\nThese are the links to the archives:\n")
 	}
 }
 
+// u.ArchiveInter() is the same as calling u.GetUrls and u.Archive, with some
+// adjustments for the interactive CLI
 func (u *urls) ArchiveInter(wg *sync.WaitGroup) {
 	fmt.Println("Validating URLs...")
 	processedUrls := Preprocess(u.tokens)
@@ -86,7 +88,8 @@ func (u *urls) ArchiveInter(wg *sync.WaitGroup) {
 		go func(url token) {
 			resp, err := http.Get(fmt.Sprintf("https://web.archive.org/save/%s", url.content))
 			if err != nil {
-				log.Fatal(err)
+				fmt.Printf("Couldn't connect to archive.org while trying to archive %s.\n Please check your Internet connection.\n", url.content)
+				return
 			}
 			defer resp.Body.Close()
 			archive := resp.Request.URL.String()

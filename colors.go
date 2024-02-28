@@ -1,3 +1,4 @@
+// coming soon
 package main
 
 import "runtime"
@@ -62,7 +63,7 @@ type Format struct {
 	Bg
 }
 
-// GetColors returns a Formats type that has escape sequences that support the user's terminal and operating system
+// GetColors returns a Formats type that has escape sequences which support the user's terminal and operating system
 func InitColors() Format {
 	var f Format
 	if runtime.GOOS != "windows" {
