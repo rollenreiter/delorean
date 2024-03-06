@@ -36,6 +36,9 @@ func FromStdin() CmdArgs {
 					fmt.Println("USAGE: delorean file [flags] <file>")
 					os.Exit(1)
 				} else {
+					if len(os.Args) > 3 {
+						fmt.Printf("WARNING: Using multiple input files is not yet supported. Only the first file will be read.\n\n")
+					}
 					fromfile.Parse(os.Args[2:])
 					f.alphaFlag = *falpha
 					f.silentFlag = *fsilent
