@@ -14,14 +14,14 @@ import (
 // archive the URL that caused the issue in their browser.
 func (u *urls) Archive(wg *sync.WaitGroup) {
 	if !Flags.silentFlag {
-		fmt.Printf("\nArchiving all URLs. Depending on the Internet Archive's traffic, this may take a long time.\n")
+		fmt.Printf("\nArchiving all URLs. Depending on the Internet Archive's traffic, this may take a while.\n")
 	}
-	for _, url := range u.validUrls {
+	for _, parsedurl := range u.validUrls {
 		wg.Add(1)
-		go func(url token) {
-			resp, err := http.Get(fmt.Sprintf("https://web.archive.org/save/%s", url.content))
+		go func(parsedurl token) {
+			resp, err := http.Get(fmt.Sprintf("https://web.archive.org/save/%s", parsedurl.content))
 			if err != nil {
-				fmt.Printf("Couldn't connect to the Internet Archive while trying to archive %s.\n Please check your internet connection.\n", url.content)
+				fmt.Printf("Couldn't connect to the Internet Archive while trying to archive %s.\n Please check your internet connection.\n", parsedurl.content)
 				return
 			}
 			defer resp.Body.Close()
@@ -31,28 +31,28 @@ func (u *urls) Archive(wg *sync.WaitGroup) {
 			if !validOutput.Match([]byte(archive)) {
 				if !Flags.silentFlag {
 					fmt.Printf("\"%s\" couldn't be archived. This may be due to the website being blacklisted from archive.org. For more information, please try archiving it in your browser\n",
-						url.content)
+						parsedurl.content)
 				}
 				newToken := token{
-					order:   url.order,
-					content: fmt.Sprintf("UNARCHIVED: %s", url.content),
+					order:   parsedurl.order,
+					content: fmt.Sprintf("UNARCHIVED: %s", parsedurl.content),
 				}
 				u.results = append(u.results, newToken)
 				wg.Done()
 			} else {
 
 				newToken := token{
-					order:   url.order,
+					order:   parsedurl.order,
 					content: archive,
 				}
 				u.results = append(u.results, newToken)
 				wg.Done()
 			}
-		}(url)
+		}(parsedurl)
 	}
 	wg.Wait()
 	if !Flags.silentFlag {
-		fmt.Printf("\nThese are the links to the archives:\n")
+		fmt.Println()
 	}
 }
 
@@ -61,34 +61,34 @@ func (u *urls) Archive(wg *sync.WaitGroup) {
 func (u *urls) ArchiveInter(wg *sync.WaitGroup) {
 	fmt.Println("Validating URLs...")
 	processedUrls := Preprocess(u.tokens)
-	for _, url := range processedUrls {
+	for _, parsedtoken := range processedUrls {
 		wg.Add(1)
-		go func(url token) {
-			_, err := http.Get(url.content)
+		go func(parsedtoken token) {
+			_, err := http.Get(parsedtoken.content)
 			if err != nil {
-				fmt.Printf("Could not resolve \"%s\", skipping...\n", url.content)
+				fmt.Printf("Could not resolve \"%s\", skipping...\n", parsedtoken.content)
 				unarchivedToken := token{
-					order:   url.order,
-					content: fmt.Sprintf("UNARCHIVED: %s", url.content),
+					order:   parsedtoken.order,
+					content: fmt.Sprintf("UNARCHIVED: %s", parsedtoken.content),
 				}
 				u.results = append(u.results, unarchivedToken)
 				wg.Done()
 				return
 			} else {
-				u.validUrls = append(u.validUrls, url)
+				u.validUrls = append(u.validUrls, parsedtoken)
 				wg.Done()
 			}
-		}(url)
+		}(parsedtoken)
 	}
 	wg.Wait()
 
 	fmt.Printf("\nArchiving all URLs. Depending on the Internet Archive's traffic, this may take a long time.\n")
-	for _, url := range u.validUrls {
+	for _, parsedurl := range u.validUrls {
 		wg.Add(1)
-		go func(url token) {
-			resp, err := http.Get(fmt.Sprintf("https://web.archive.org/save/%s", url.content))
+		go func(parsedurl token) {
+			resp, err := http.Get(fmt.Sprintf("https://web.archive.org/save/%s", parsedurl.content))
 			if err != nil {
-				fmt.Printf("Couldn't connect to archive.org while trying to archive %s.\n Please check your Internet connection.\n", url.content)
+				fmt.Printf("Couldn't connect to archive.org while trying to archive %s.\n Please check your Internet connection.\n", parsedurl.content)
 				return
 			}
 			defer resp.Body.Close()
@@ -97,22 +97,22 @@ func (u *urls) ArchiveInter(wg *sync.WaitGroup) {
 			validOutput := regexp.MustCompile(`http.:\/\/web\.archive\.org\/web\/[0-9]{14}\/`)
 			if !validOutput.Match([]byte(archive)) {
 				fmt.Printf("\"%s\" couldn't be archived. This may be due to the website being blacklisted from archive.org. For more information, please try archiving it in your browser\n",
-					url.content)
+					parsedurl.content)
 				unarchivedToken := token{
-					order:   url.order,
-					content: fmt.Sprintf("UNARCHIVED: %s", url.content),
+					order:   parsedurl.order,
+					content: fmt.Sprintf("UNARCHIVED: %s", parsedurl.content),
 				}
 				u.results = append(u.results, unarchivedToken)
 				wg.Done()
 			} else {
 				archivedToken := token{
-					order:   url.order,
+					order:   parsedurl.order,
 					content: archive,
 				}
 				u.results = append(u.results, archivedToken)
 				wg.Done()
 			}
-		}(url)
+		}(parsedurl)
 	}
 	wg.Wait()
 }

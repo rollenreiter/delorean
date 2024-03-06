@@ -8,7 +8,7 @@ import (
 
 func FromTestURL() cmdflags {
 	f := cmdflags{
-		urlFlag:    "https://github.com/rollenreiter/delorean junktext http://asahina.moe github.com/stompman34",
+		urlFlag:    "https://github.com/rollenreiter/delorean junktext http://milk.com github.com/stompman34",
 		fileFlag:   "",
 		silentFlag: true,
 		alphaFlag:  false,
@@ -34,7 +34,7 @@ func TestTokenizeUrl(t *testing.T) {
 
 	got := input.tokens
 
-	want := []string{"https://github.com/rollenreiter/delorean", "junktext", "http://asahina.moe", "github.com/stompman34"}
+	want := []string{"https://github.com/rollenreiter/delorean", "junktext", "http://milk.com", "github.com/stompman34"}
 
 	if len(got) == 0 {
 		t.Errorf("slice %q is empty, wanted %q", got, want)
@@ -60,7 +60,7 @@ func TestTokenizeFile(t *testing.T) {
 		"bar",
 		"https://github.com/rollenreiter/delorean",
 		"junktext",
-		"http://asahina.moe",
+		"http://milk.com",
 		"github.com/stompman34",
 	}
 
@@ -85,7 +85,7 @@ func TestGetUrls(t *testing.T) {
 	got := input.validUrls
 	want := []string{
 		"https://github.com/rollenreiter/delorean",
-		"http://asahina.moe",
+		"http://milk.com",
 		"http://github.com/stompman34",
 	}
 
@@ -111,7 +111,7 @@ func TestGetUrlsFile(t *testing.T) {
 	got := input.validUrls
 	want := []string{
 		"https://github.com/rollenreiter/delorean",
-		"http://asahina.moe",
+		"http://milk.com",
 		"http://github.com/stompman34",
 	}
 

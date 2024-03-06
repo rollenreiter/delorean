@@ -41,8 +41,8 @@ func (u *urls) Tokenize() {
 	case Flags.urlFlag != "":
 		{
 			u.source = "urlFlag"
-			urls := strings.Fields(Flags.urlFlag)
-			for o, c := range urls {
+			flagtokens := strings.Fields(Flags.urlFlag)
+			for o, c := range flagtokens {
 				newToken := token{
 					order:   o,
 					content: c,
@@ -64,57 +64,50 @@ func (u *urls) Tokenize() {
 // request to each to determine if it is valid.
 // Once validity is verified, the URL is added to u.validUrls. Invalid URLs are discarded.
 func (u *urls) GetUrls(wg *sync.WaitGroup) {
-	if !Flags.silentFlag {
-		fmt.Println("Validating URLs...")
-	}
 	switch u.source {
 	case Flags.fileFlag:
 		{
 			processedUrls := Preprocess(u.tokens)
-			for _, url := range processedUrls {
+			for _, parsedtoken := range processedUrls {
 				wg.Add(1)
-				go func(url token) {
-					_, err := http.Get(url.content)
+				go func(parsedtoken token) {
+					_, err := http.Get(parsedtoken.content)
 					if err != nil {
 						wg.Done()
 						return
 					} else {
-						u.validUrls = append(u.validUrls, url)
+						u.validUrls = append(u.validUrls, parsedtoken)
 						wg.Done()
 					}
-				}(url)
+				}(parsedtoken)
 			}
 		}
 
 	case "urlFlag":
 		{
 			processedUrls := Preprocess(u.tokens)
-			for _, url := range processedUrls {
+			for _, parsedtoken := range processedUrls {
 				wg.Add(1)
-				go func(url token) {
-					_, err := http.Get(url.content)
+				go func(parsedtoken token) {
+					_, err := http.Get(parsedtoken.content)
 					if err != nil {
 						if !Flags.silentFlag {
-							fmt.Printf("Could not resolve \"%s\", skipping...\n", url.content)
+							fmt.Printf("Could not resolve \"%s\", skipping...\n", parsedtoken.content)
 						}
 						newToken := token{
-							order:   url.order,
-							content: fmt.Sprintf("UNARCHIVED: %s", url.content),
+							order:   parsedtoken.order,
+							content: fmt.Sprintf("UNARCHIVED: %s", parsedtoken.content),
 						}
 						u.results = append(u.results, newToken)
 						wg.Done()
 						return
 					} else {
-						u.validUrls = append(u.validUrls, url)
+						u.validUrls = append(u.validUrls, parsedtoken)
 						wg.Done()
 					}
-				}(url)
+				}(parsedtoken)
 			}
 		}
 	}
 	wg.Wait()
-
-	if !Flags.silentFlag {
-		fmt.Println("Done.")
-	}
 }

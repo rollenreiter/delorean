@@ -10,9 +10,7 @@ import (
 )
 
 var (
-	Colors       = InitColors()
-	version      = "1.0.0"
-	Greeter      = fmt.Sprintf("Welcome to DeLorean %s\nType h for help\n\n", version)
+	Greeter      = fmt.Sprintf("\033[34mWelcome to DeLorean (%s)\033[0m\nType h for help\n\n", Version)
 	Alphabetical = false
 )
 
