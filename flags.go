@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
 )
 
@@ -18,12 +19,11 @@ func FromStdin() CmdArgs {
 	fromfile := flag.NewFlagSet("file", flag.ExitOnError)
 	var f CmdArgs
 	flag.BoolVar(&f.alphaFlag, "a", false, "Sort URLs in alphabetical order.")
-	// flag.StringVar(&f.fromString, "u", "", "Declare URLs to archive as a single string or a space-seperated sequence of strings.")
-	// flag.StringVar(&f.fromFile, "f", "", "Declare a file to parse and archive all URLs from.")
 	flag.BoolVar(&f.silentFlag, "s", false, "Supress all output except for the final link to the archive.")
 	flag.BoolVar(&f.versionFlag, "v", false, "Print Version and exit.")
 	fsilent := fromfile.Bool("s", false, "Supress all output except for the final link to the archive.")
 	falpha := fromfile.Bool("a", false, "Sort URLs in alphabetical order.")
+
 	if len(os.Args) == 1 {
 		f.fromFile = ""
 		f.fromString = ""
@@ -31,10 +31,16 @@ func FromStdin() CmdArgs {
 		switch os.Args[1] {
 		case "file":
 			{
-				fromfile.Parse(os.Args[2:])
-				f.alphaFlag = *falpha
-				f.silentFlag = *fsilent
-				f.fromFile = fromfile.Args()[0]
+				if len(os.Args) == 2 {
+					fmt.Println("delorean: no file given")
+					fmt.Println("USAGE: delorean file [flags] <file>")
+					os.Exit(1)
+				} else {
+					fromfile.Parse(os.Args[2:])
+					f.alphaFlag = *falpha
+					f.silentFlag = *fsilent
+					f.fromFile = fromfile.Args()[0]
+				}
 			}
 		default:
 			{
