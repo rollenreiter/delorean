@@ -40,15 +40,19 @@ func main() {
 	go func() {
 		_, err := http.Get("http://web.archive.org")
 		if err != nil {
-			fmt.Println("Couldn't connect to the Internet Archive. Please check your internet connection.")
 			netfailure <- true
 		} else {
-			wg.Done()
+			netfailure <- false
 		}
 	}()
 	select {
-	case <-netfailure:
-		os.Exit(1)
+	case failed := <-netfailure:
+		if failed {
+			fmt.Println("Couldn't connect to the Internet Archive. Please check your internet connection.")
+			os.Exit(1)
+		} else {
+			wg.Done()
+		}
 	case <-time.After(8 * time.Second):
 		fmt.Println("Timed out while trying to connect to the Internet Archive. Please check your internet connection.")
 		os.Exit(1)
