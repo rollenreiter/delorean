@@ -19,9 +19,7 @@ func (u *urls) Tokenize() {
 			u.source = Flags.fromFile
 			file, err := os.Open(u.source)
 			if err != nil {
-				if !Flags.silentFlag {
-					fmt.Printf("Failed reading from %s\n", u.source)
-				}
+				fmt.Printf("delorean: %v\n", err)
 				file.Close()
 				os.Exit(1)
 			}
