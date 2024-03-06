@@ -33,7 +33,7 @@ func FromStdin() CmdArgs {
 			{
 				if len(os.Args) == 2 {
 					fmt.Println("delorean: no file given")
-					fmt.Println("USAGE: delorean file [flags] <file>")
+					fmt.Println("USAGE: delorean file [FLAGS]... [FILE]")
 					os.Exit(1)
 				} else {
 					if len(os.Args) > 3 {
