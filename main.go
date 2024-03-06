@@ -21,7 +21,7 @@ type token struct {
 
 const Version string = "v1.0.0"
 
-var Flags cmdflags
+var Flags CmdArgs
 
 func main() {
 	Flags.SetFlags(FromStdin)
