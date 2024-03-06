@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	Greeter      = fmt.Sprintf("\033[34mWelcome to DeLorean (%s)\033[0m\nType h for help\n\n", Version)
+	Greeter      = fmt.Sprintf("\033[34mWelcome to DeLorean (%s)\033[0m\nType h for help.\n\n", Version)
 	Alphabetical = false
 )
 
@@ -25,7 +25,7 @@ func InterfaceInit(u *urls) {
 		s = strings.TrimSpace(s)
 		switch s {
 		case "q":
-			os.Exit(1)
+			InterfaceExit(u)
 		case "a":
 			InterfaceAdd(u)
 		case "d":
@@ -39,13 +39,13 @@ func InterfaceInit(u *urls) {
 		case "s":
 			InterfaceSort(u)
 		default:
-			fmt.Printf("Unknown command.\nType h for help\n\n")
+			fmt.Printf("\nUnknown command.\nType h for help.\n\n")
 		}
 	}
 }
 
 func InterfaceHelp() {
-	fmt.Printf("Keybinds:\n")
+	fmt.Printf("\nKeybinds:\n")
 	fmt.Printf("a - Add a URL to the archive list\n")
 	fmt.Printf("l - List all links in the archive list\n")
 	fmt.Printf("d - Remove a URL from the archive list\n\n")
@@ -57,11 +57,11 @@ func InterfaceHelp() {
 }
 
 func InterfaceAdd(u *urls) {
-	fmt.Println("Enter the URL to add to the archive list:")
+	fmt.Println("\nEnter the URL to add to the archive list:")
 	fmt.Print("[" + fmt.Sprint(len(u.tokens)) + "] + ")
 	var new string
 	fmt.Scanln(&new)
-	if new == "\n" {
+	if new == "\n" || new == "" || new == " " {
 		fmt.Printf("Aborted.\n\n")
 	} else {
 		newToken := token{
@@ -74,7 +74,7 @@ func InterfaceAdd(u *urls) {
 }
 
 func InterfaceDelete(u *urls) {
-	fmt.Println("Which URL do you want to remove?:")
+	fmt.Println("\nWhich URL do you want to remove?:")
 	for i, s := range u.tokens {
 		fmt.Printf("(%d) %s\n", i+1, s.content)
 	}
@@ -142,4 +142,28 @@ func (u urls) Finish() {
 		fmt.Println(s.content)
 	}
 	os.Exit(0)
+}
+
+func InterfaceExit(u *urls) {
+	if len(u.tokens) == 0 {
+		fmt.Println("\nGoodbye!")
+		os.Exit(0)
+	} else {
+		fmt.Printf("\nWARNING! The following sites:\n")
+		for i, s := range u.tokens {
+			fmt.Printf("(%d) %s\n", i+1, s.content)
+		}
+		fmt.Printf("will NOT be archived. Are you sure you want to quit? [y/N]")
+		// TODO: make y/N
+		var yn string
+		fmt.Scanln(&yn)
+		switch yn {
+		case "y", "Y", "yes", "Yes", "yEs", "yeS", "yES", "YeS", "YEs":
+			fmt.Printf("\nGoodbye!\n")
+			os.Exit(0)
+		default:
+			fmt.Printf("Returning to normal mode.\n\n")
+			return
+		}
+	}
 }
