@@ -2,10 +2,8 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 	"sync"
-	"time"
 )
 
 type urls struct {
@@ -30,37 +28,11 @@ func main() {
 		fmt.Printf("DeLorean-%s\nCopyright (C) 2024 Rollenreiter\nThis software may be freely redistributed under the terms of the GNU General Public License\n", Version)
 		os.Exit(0)
 	}
-
-	if !Flags.silentFlag {
-		fmt.Printf("Checking availability...\n")
-	}
 	var wg sync.WaitGroup
-	wg.Add(1)
-	netfailure := make(chan bool, 1)
-	go func() {
-		_, err := http.Get("http://web.archive.org")
-		if err != nil {
-			netfailure <- true
-		} else {
-			netfailure <- false
-		}
-	}()
-	select {
-	case failed := <-netfailure:
-		if failed {
-			fmt.Println("Couldn't connect to the Internet Archive. Please check your internet connection.")
-			os.Exit(1)
-		} else {
-			wg.Done()
-		}
-	case <-time.After(8 * time.Second):
-		fmt.Println("Timed out while trying to connect to the Internet Archive. Please check your internet connection.")
-		os.Exit(1)
-	}
-	wg.Wait()
 
 	input := NewInput()
 	input.Tokenize()
+	CheckConnection(&wg)
 	input.GetUrls(&wg)
 	if len(input.validUrls) != 0 {
 		input.Archive(&wg)

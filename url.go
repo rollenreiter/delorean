@@ -7,7 +7,37 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 )
+
+func CheckConnection(wg *sync.WaitGroup) {
+	if !Flags.silentFlag {
+		fmt.Printf("Checking availability...\n")
+	}
+	wg.Add(1)
+	netfailure := make(chan bool, 1)
+	go func() {
+		_, err := http.Get("http://web.archive.org")
+		if err != nil {
+			netfailure <- true
+		} else {
+			netfailure <- false
+		}
+	}()
+	select {
+	case failed := <-netfailure:
+		if failed {
+			fmt.Println("Couldn't connect to the Internet Archive. Please check your internet connection.")
+			os.Exit(1)
+		} else {
+			wg.Done()
+		}
+	case <-time.After(8 * time.Second):
+		fmt.Println("Timed out while trying to connect to the Internet Archive. Please check your internet connection.")
+		os.Exit(1)
+	}
+	wg.Wait()
+}
 
 // Tokenize determines the URL source by reading f, then sets u.source accordingly and appends
 // every token inside of the source to u.tokens.
@@ -19,7 +49,7 @@ func (u *urls) Tokenize() {
 			u.source = Flags.fromFile
 			file, err := os.Open(u.source)
 			if err != nil {
-				fmt.Printf("delorean: %v\n", err)
+				fmt.Printf("delorean: cannot %s\n", err)
 				file.Close()
 				os.Exit(1)
 			}
