@@ -14,9 +14,9 @@ import (
 func (u *urls) Tokenize() {
 	// behaviour when reading from a file
 	switch {
-	case Flags.fileFlag != "":
+	case Flags.fromFile != "":
 		{
-			u.source = Flags.fileFlag
+			u.source = Flags.fromFile
 			file, err := os.Open(u.source)
 			if err != nil {
 				if !Flags.silentFlag {
@@ -38,10 +38,10 @@ func (u *urls) Tokenize() {
 			}
 		}
 	// behaviour when reading from urlFlag
-	case Flags.urlFlag != "":
+	case Flags.fromString != "":
 		{
 			u.source = "urlFlag"
-			flagtokens := strings.Fields(Flags.urlFlag)
+			flagtokens := strings.Fields(Flags.fromString)
 			for o, c := range flagtokens {
 				newToken := token{
 					order:   o,
@@ -52,7 +52,7 @@ func (u *urls) Tokenize() {
 		}
 
 	// behaviour when reading from stdin
-	case Flags.urlFlag == "" && Flags.fileFlag == "":
+	case Flags.fromString == "" && Flags.fromFile == "":
 		{
 			u.source = "stdin"
 			InterfaceInit(u)
@@ -65,7 +65,7 @@ func (u *urls) Tokenize() {
 // Once validity is verified, the URL is added to u.validUrls. Invalid URLs are discarded.
 func (u *urls) GetUrls(wg *sync.WaitGroup) {
 	switch u.source {
-	case Flags.fileFlag:
+	case Flags.fromFile:
 		{
 			processedUrls := Preprocess(u.tokens)
 			for _, parsedtoken := range processedUrls {

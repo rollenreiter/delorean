@@ -6,20 +6,20 @@ import (
 	"testing"
 )
 
-func FromTestURL() cmdflags {
-	f := cmdflags{
-		urlFlag:    "https://github.com/rollenreiter/delorean junktext http://milk.com github.com/stompman34",
-		fileFlag:   "",
+func FromTestURL() CmdArgs {
+	f := CmdArgs{
+		fromString: "https://github.com/rollenreiter/delorean junktext http://milk.com github.com/stompman34",
+		fromFile:   "",
 		silentFlag: true,
 		alphaFlag:  false,
 	}
 	return f
 }
 
-func FromTestfile() cmdflags {
-	f := cmdflags{
-		urlFlag:    "",
-		fileFlag:   "testfile",
+func FromTestfile() CmdArgs {
+	f := CmdArgs{
+		fromString: "",
+		fromFile:   "testfile",
 		silentFlag: true,
 		alphaFlag:  false,
 	}
