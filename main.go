@@ -25,7 +25,7 @@ var Flags CmdArgs
 func main() {
 	Flags.SetFlags(FromStdin)
 	if Flags.versionFlag {
-		fmt.Printf("DeLorean-%s\nCopyright (C) 2024 Rollenreiter\nThis software may be freely redistributed under the terms of the GNU General Public License\n", Version)
+		fmt.Printf("DeLorean-%s\nCopyright (C) 2024 Rollenreiter\nThis software may be freely redistributed under the terms of the GNU General Public License.\n", Version)
 		os.Exit(0)
 	}
 	var wg sync.WaitGroup
