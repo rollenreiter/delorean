@@ -30,9 +30,10 @@ func main() {
 	}
 	var wg sync.WaitGroup
 
+	CheckConnection(&wg)
+
 	input := NewInput()
 	input.Tokenize()
-	CheckConnection(&wg)
 	input.GetUrls(&wg)
 	if len(input.validUrls) != 0 {
 		input.Archive(&wg)
