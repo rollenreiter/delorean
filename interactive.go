@@ -62,7 +62,7 @@ func InterfaceAdd(u *urls) {
 	var new string
 	fmt.Scanln(&new)
 	if new == "\n" || new == "" || new == " " {
-		fmt.Printf("Aborted.\n\n")
+		fmt.Printf("%sAborted.%s\n\n", Error, Escape)
 	} else {
 		newToken := token{
 			order:   len(u.tokens),
@@ -84,8 +84,10 @@ func InterfaceDelete(u *urls) {
 	deleted, err := strconv.Atoi(selection)
 	switch {
 	case err != nil:
+		fmt.Printf("%sERROR:%s ", Error, Escape)
 		fmt.Printf("Please enter a number.\n\n")
 	case deleted <= 0 || deleted > len(u.tokens):
+		fmt.Printf("%sERROR:%s ", Error, Escape)
 		fmt.Printf("This URL is not in the list.\n\n")
 	default:
 		{
@@ -132,6 +134,7 @@ func InterfaceArchive(u *urls) {
 		u.ArchiveInter(&wg)
 		u.Finish()
 	}
+	fmt.Printf("%sERROR:%s ", Error, Escape)
 	fmt.Printf("Nothing to archive.\n\n")
 }
 
@@ -149,7 +152,8 @@ func InterfaceExit(u *urls) {
 		fmt.Println("\nGoodbye!")
 		os.Exit(0)
 	} else {
-		fmt.Printf("\nWARNING! The following sites:\n")
+		fmt.Printf("%sWARNING:%s ", Warning, Escape)
+		fmt.Printf("The following sites:\n")
 		for i, s := range u.tokens {
 			fmt.Printf("(%d) %s\n", i+1, s.content)
 		}

@@ -90,6 +90,7 @@ func (u *urls) ArchiveInter(wg *sync.WaitGroup) {
 		go func(parsedurl token) {
 			resp, err := http.Get(fmt.Sprintf("https://web.archive.org/save/%s", parsedurl.content))
 			if err != nil {
+				fmt.Printf("%sERROR:%s ", Error, Escape)
 				fmt.Printf("Couldn't connect to archive.org while trying to archive %s.\n Please check your Internet connection.\n", parsedurl.content)
 				return
 			}
@@ -98,6 +99,7 @@ func (u *urls) ArchiveInter(wg *sync.WaitGroup) {
 
 			validOutput := regexp.MustCompile(`http.:\/\/web\.archive\.org\/web\/[0-9]{14}\/`)
 			if !validOutput.Match([]byte(archive)) {
+				fmt.Printf("%sWARNING:%s ", Warning, Escape)
 				fmt.Printf("\"%s\" couldn't be archived. This may be due to the website being blacklisted from archive.org. For more information, please try archiving it in your browser\n",
 					parsedurl.content)
 				unarchivedToken := token{
@@ -139,12 +141,14 @@ func CheckConnection(wg *sync.WaitGroup) {
 	select {
 	case failed := <-netfailure:
 		if failed {
+			fmt.Printf("%sERROR:%s ", Error, Escape)
 			fmt.Println("Couldn't connect to the Internet Archive. Please check your internet connection.")
 			os.Exit(1)
 		} else {
 			wg.Done()
 		}
 	case <-time.After(8 * time.Second):
+		fmt.Printf("%sERROR:%s ", Error, Escape)
 		fmt.Println("Timed out while trying to connect to the Internet Archive. Please check your internet connection.")
 		os.Exit(1)
 	}

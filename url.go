@@ -19,7 +19,8 @@ func (u *urls) Tokenize() {
 			u.source = Flags.fromFile
 			file, err := os.Open(u.source)
 			if err != nil {
-				fmt.Printf("delorean: cannot %s\n", err)
+				fmt.Printf("%sERROR:%s ", Error, Escape)
+				fmt.Printf("Cannot %s\n", err)
 				file.Close()
 				os.Exit(1)
 			}
@@ -90,6 +91,7 @@ func (u *urls) GetUrls(wg *sync.WaitGroup) {
 					_, err := http.Get(parsedtoken.content)
 					if err != nil {
 						if !Flags.silentFlag {
+							fmt.Printf("%sWARNING:%s ", Warning, Escape)
 							fmt.Printf("Could not resolve \"%s\", skipping...\n", parsedtoken.content)
 						}
 						newToken := token{

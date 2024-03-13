@@ -43,6 +43,8 @@ func main() {
 		}
 	} else {
 		if !Flags.silentFlag {
+
+			fmt.Printf("%sERROR:%s ", Error, Escape)
 			fmt.Println("Nothing to archive.")
 		}
 	}

@@ -37,7 +37,8 @@ func FromStdin() CmdArgs {
 					os.Exit(1)
 				} else {
 					if len(os.Args) > 3 {
-						fmt.Printf("WARNING: Using multiple input files is not yet supported. Only the first file will be read.\n\n")
+						fmt.Printf("%sWARNING:%s ", Warning, Escape)
+						fmt.Printf("Using multiple input files is not yet supported. Only the first file will be read.\n\n")
 					}
 					fromfile.Parse(os.Args[2:])
 					f.alphaFlag = *falpha
