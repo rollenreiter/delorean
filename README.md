@@ -22,10 +22,11 @@ $ go install .
 $ export PATH=$PATH:$GOPATH/bin
 ```
 
-[!WARNING]
-> Although building will not fail, running DeLorean on Windows, macOS, Plan9,
-> Haiku and the BSDs is **not officially supported.** Proper Windows support
-> is coming soon.
+### WARNING
+
+> Although building will not fail, running DeLorean on any OS other than
+> GNU/Linux is **not officially supported.**
+> Broken formatting on Windows is a known issue and a fix is coming soon.
 
 # Usage
 
@@ -44,16 +45,16 @@ Pass a whitespace-separated list of URLs as an argument to archive all of them.
 
 ```bash
 # Archive example.foo, example1.foo and example2.foo
-delorean "https://example.foo http://example1.foo example2.foo"
+$ delorean "https://example.foo http://example1.foo example2.foo"
 ```
 
 Use the `-s` flag to suppress all output except for error messages and the
-final output.
+final output. The `-a` flag sorts them alphabetically.
 
 ```bash
-# Archive example.foo, example1.foo and example2.foo
-# and redirect all output to citation.txt
-delorean "https://example.foo https://example1.foo" -s >> citation.txt
+# Archive example.foo, example1.foo and example2.foo and write all archives
+# to citation.txt in alphabetical order
+$ delorean -s -a "https://example.foo https://example1.foo" >> citation.txt
 ```
 
 Use `delorean file` to pass a file. DeLorean will parse all URLs and
@@ -62,5 +63,5 @@ archive them.
 ```bash
 # Archive all links from old-citation.txt and redirect
 # the output to new-citation.txt
-delorean file old-citation.txt -s >> new-citation.txt
+$ delorean file -s old-citation.txt >> new-citation.txt
 ```
