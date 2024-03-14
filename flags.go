@@ -21,6 +21,8 @@ func FromStdin() CmdArgs {
 	flag.BoolVar(&f.alphaFlag, "a", false, "Sort URLs in alphabetical order.")
 	flag.BoolVar(&f.silentFlag, "s", false, "Supress all output except for the final link to the archive.")
 	flag.BoolVar(&f.versionFlag, "v", false, "Print Version and exit.")
+	flag.StringVar(&f.fromString, "u", "", "Deprecated: Identical to \"delorean '[...URLS]'\"")
+	flag.StringVar(&f.fromString, "f", "", "Deprecated: Identical to 'delorean file'")
 	fsilent := fromfile.Bool("s", false, "Supress all output except for the final link to the archive.")
 	falpha := fromfile.Bool("a", false, "Sort URLs in alphabetical order.")
 
@@ -32,7 +34,7 @@ func FromStdin() CmdArgs {
 		case "-u":
 			{
 				fmt.Printf("%sWARNING:%s ", Warning, Escape)
-				fmt.Println("The '-u' flag is deprecated and may be removed in a later version. Please use 'delorean \"[...URLS]\"' instead.")
+				fmt.Println("The '-u' flag is deprecated and may be removed in a later version. Please use \"delorean '[...URLS]'\" instead.")
 				f.fromString = os.Args[2]
 			}
 		case "file", "-f":
