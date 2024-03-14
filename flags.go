@@ -29,10 +29,21 @@ func FromStdin() CmdArgs {
 		f.fromString = ""
 	} else {
 		switch os.Args[1] {
-		case "file":
+		case "-u":
 			{
+				fmt.Printf("%sWARNING:%s ", Warning, Escape)
+				fmt.Println("The '-u' flag is deprecated and may be removed in a later version. Please use 'delorean \"[...URLS]\"' instead.")
+				f.fromString = os.Args[2]
+			}
+		case "file", "-f":
+			{
+				if os.Args[1] == "-f" {
+					fmt.Printf("%sWARNING:%s ", Warning, Escape)
+					fmt.Println("The '-f' flag is deprecated and may be removed in a later version. Please use 'delorean file' instead.")
+				}
 				if len(os.Args) == 2 {
-					fmt.Println("delorean: no file given")
+					fmt.Printf("%sERROR:%s ", Error, Escape)
+					fmt.Println("No file given")
 					fmt.Println("USAGE: delorean file [FLAGS]... [FILE]")
 					os.Exit(1)
 				} else {
