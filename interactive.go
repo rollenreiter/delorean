@@ -74,33 +74,38 @@ func InterfaceAdd(u *urls) {
 }
 
 func InterfaceDelete(u *urls) {
-	fmt.Println("\nWhich URL do you want to remove?:")
-	for i, s := range u.tokens {
-		fmt.Printf("(%d) %s\n", i+1, s.content)
-	}
-	fmt.Print("[" + fmt.Sprint(len(u.tokens)) + "] - ")
-	var selection string
-	fmt.Scanln(&selection)
-	deleted, err := strconv.Atoi(selection)
-	switch {
-	case err != nil:
-		fmt.Printf("%sERROR:%s ", Error, Escape)
-		fmt.Printf("Please enter a number.\n\n")
-	case deleted <= 0 || deleted > len(u.tokens):
-		fmt.Printf("%sERROR:%s ", Error, Escape)
-		fmt.Printf("This URL is not in the list.\n\n")
-	default:
-		{
-			fmt.Printf("Successfully deleted \"%s\" from archive list.\n\n", u.tokens[deleted-1].content)
-			new := make([]token, 0, len(u.tokens)-1)
-			for i, s := range u.tokens {
-				if i == deleted-1 {
-					continue
-				}
-				new = append(new, s)
-			}
-			u.tokens = new
+	if len(u.tokens) != 0 {
+		fmt.Println("\nWhich URL do you want to remove?:")
+		for i, s := range u.tokens {
+			fmt.Printf("(%d) %s\n", i+1, s.content)
 		}
+		fmt.Print("[" + fmt.Sprint(len(u.tokens)) + "] - ")
+		var selection string
+		fmt.Scanln(&selection)
+		deleted, err := strconv.Atoi(selection)
+		switch {
+		case err != nil:
+			fmt.Printf("%s|!|%s ", Error, Escape)
+			fmt.Printf("Please enter a number.\n\n")
+		case deleted <= 0 || deleted > len(u.tokens):
+			fmt.Printf("%s|!|%s ", Error, Escape)
+			fmt.Printf("This URL is not in the list.\n\n")
+		default:
+			{
+				fmt.Printf("Successfully deleted \"%s\" from archive list.\n\n", u.tokens[deleted-1].content)
+				new := make([]token, 0, len(u.tokens)-1)
+				for i, s := range u.tokens {
+					if i == deleted-1 {
+						continue
+					}
+					new = append(new, s)
+				}
+				u.tokens = new
+			}
+		}
+	} else {
+		fmt.Printf("%s|!|%s ", Error, Escape)
+		fmt.Printf("No URLs to delete.\n\n")
 	}
 }
 
@@ -134,7 +139,7 @@ func InterfaceArchive(u *urls) {
 		u.ArchiveInter(&wg)
 		u.Finish()
 	}
-	fmt.Printf("%sERROR:%s ", Error, Escape)
+	fmt.Printf("%s|!|%s ", Error, Escape)
 	fmt.Printf("Nothing to archive.\n\n")
 }
 
@@ -152,7 +157,7 @@ func InterfaceExit(u *urls) {
 		fmt.Println("\nGoodbye!")
 		os.Exit(0)
 	} else {
-		fmt.Printf("%sWARNING:%s ", Warning, Escape)
+		fmt.Printf("%s|!|%s ", Warning, Escape)
 		fmt.Printf("The following sites:\n")
 		for i, s := range u.tokens {
 			fmt.Printf("(%d) %s\n", i+1, s.content)
