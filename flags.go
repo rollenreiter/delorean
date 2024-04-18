@@ -33,18 +33,18 @@ func FromStdin() CmdArgs {
 		switch os.Args[1] {
 		case "-u":
 			{
-				fmt.Printf("%sWARNING:%s ", Warning, Escape)
-				fmt.Println("The '-u' flag is deprecated and may be removed in a later version. Please use \"delorean '[...URLS]'\" instead.")
+				fmt.Printf("%s|!|%s ", Warning, Escape)
+				fmt.Printf("The '-u' flag is deprecated and %sWILL%s be removed in a later version. Please use 'delorean [urls] [flags...]' instead.\n\n", Error, Escape)
 				f.fromString = os.Args[2]
 			}
 		case "file", "-f":
 			{
 				if os.Args[1] == "-f" {
-					fmt.Printf("%sWARNING:%s ", Warning, Escape)
-					fmt.Println("The '-f' flag is deprecated and may be removed in a later version. Please use 'delorean file' instead.")
+					fmt.Printf("%s|!|%s ", Warning, Escape)
+					fmt.Printf("The '-f' flag is deprecated and %sWILL%s be removed in a later version. Please use 'delorean file <filename> [flags...]' instead.\n\n", Error, Escape)
 				}
 				if len(os.Args) == 2 {
-					fmt.Printf("%sERROR:%s ", Error, Escape)
+					fmt.Printf("%s|!|%s ", Error, Escape)
 					fmt.Println("No file given")
 					fmt.Println("USAGE: delorean file [FLAGS]... [FILE]")
 					os.Exit(1)
