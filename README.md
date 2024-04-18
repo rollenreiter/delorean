@@ -35,7 +35,7 @@ Executing the binary without arguments opens an interactive interface.
 ```bash
 # Run DeLorean in interactive mode
 $ delorean
-Welcome to DeLorean v0.1.0
+Welcome to DeLorean v1.1.0
 Type h for help
 
 [0] >
