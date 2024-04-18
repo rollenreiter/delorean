@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -66,4 +67,21 @@ func Preprocess(s []token) []token {
 		}
 	}
 	return p
+}
+
+func IsMultifile() bool {
+	var files int
+	for i, s := range os.Args {
+		switch {
+		case i < 2:
+			continue
+		case files >= 1:
+			return true
+		case s[0] == '-':
+			continue
+		default:
+			files++
+		}
+	}
+	return false
 }
