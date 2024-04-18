@@ -16,6 +16,11 @@ type CmdArgs struct {
 
 // Parse CmdArgs from Stdin
 func FromStdin() CmdArgs {
+	flag.Usage = func() {
+		fmt.Printf("%s|x|%s ", Error, Escape)
+		fmt.Printf("Invalid flags or subcommand. Please invoke 'delorean -h' for help.\n")
+		os.Exit(1)
+	}
 	fromfile := flag.NewFlagSet("file", flag.ExitOnError)
 	var f CmdArgs
 	flag.BoolVar(&f.alphaFlag, "a", false, "Sort URLs in alphabetical order.")
@@ -58,6 +63,21 @@ func FromStdin() CmdArgs {
 					f.silentFlag = *fsilent
 					f.fromFile = fromfile.Args()[0]
 				}
+			}
+		case "-h":
+			{
+				fmt.Printf("DeLorean - a CLI for archiving webpages on the Wayback Machine\n")
+				fmt.Printf("Usage:\n\n")
+				fmt.Printf("\tdelorean [urls] [flags...]\n")
+				fmt.Printf("\tdelorean file [flags...] <filename>\n")
+				fmt.Printf("\nFlags:\n")
+				fmt.Printf("\t-h\tshow this help message\n")
+				fmt.Printf("\t-s\tsilence the output except for the final list of URLs\n")
+				fmt.Printf("\t-a\tsort the final output alphabetically\n")
+				fmt.Printf("\nDeprecated:\n")
+				fmt.Printf("\t-u\tlegacy equivalent to 'delorean <urls>'\n")
+				fmt.Printf("\t-f\tlegacy equivalent to 'delorean file <file>'\n")
+				os.Exit(0)
 			}
 		default:
 			{
